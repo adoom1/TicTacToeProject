@@ -40,7 +40,7 @@ jobs:
       - name: Setup Qt
         uses: jurplel/install-qt-action@v3
         with:
-          version: '6.x' # Or a specific version like '6.5.0'
+          version: '6.9.0' # Or a specific version like '6.5.0'
           aqtversion: '==3.1.*' # Specify a compatible aqtinstall version
           host: 'linux'
           target: 'desktop'
