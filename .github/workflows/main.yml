@@ -55,9 +55,9 @@ jobs:
 
       # Step 4: Configure the Qt project using qmake.
       # qmake generates the Makefile for your project.
-      # We now specify the correct working directory and project file name.
+      # The 'working-directory' is relative to the root of the repository after checkout.
       - name: Run qmake
-        working-directory: TicTacToeProject-12e724028cb5f5dd670b7bb1447547c16c2fe3eb # Removed leading './'
+        working-directory: TicTacToeProject/TicTacToeProject-12e724028cb5f5dd670b7bb1447547c16c2fe3eb # THIS IS THE CRITICAL CHANGE
         run: qmake TicTacToe1.pro # Use the correct project file name
 
       # Step 5: Build the project using make.
@@ -65,7 +65,7 @@ jobs:
       # The '-j$(nproc)' flag uses all available processor cores for faster compilation.
       # We keep the same working directory for the build.
       - name: Build project
-        working-directory: TicTacToeProject-12e724028cb5f5dd670b7bb1447547c16c2fe3eb # Removed leading './'
+        working-directory: TicTacToeProject/TicTacToeProject-12e724028cb5f5dd670b7bb1447547c16c2fe3eb # Keep the same working directory
         run: make -j$(nproc)
 
       # Step 6: (Optional, but highly recommended for CI) Run Tests.
@@ -73,7 +73,7 @@ jobs:
       # For now, we'll comment this out as your team is handling testing.
       # When they create the test executable, you can uncomment this.
       # - name: Run tests
-      #   working-directory: ./TicTacToeProject-12e724028cb5f5dd670b7bb1447547c16c2fe3eb/release # Assuming tests are built into release
+      #   working-directory: TicTacToeProject/TicTacToeProject-12e724028cb5f5dd670b7bb1447547c16c2fe3eb/release # Assuming tests are built into release
       #   run: ./TicTacToeTests # Adjust path if your test executable is in a subdirectory
 
       # Step 7: Upload build artifacts.
@@ -84,6 +84,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: TicTacToe-Linux-Build
-          # The path is now relative to the root of the GITHUB_WORKSPACE,
-          # pointing to the release directory within your project folder
-          path: TicTacToeProject-12e724028cb5f5dd670b7bb1447547c16c2fe3eb/release/TicTacToe1 # Adjust for correct project name and build location
+          # The path is now relative to the root of the GITHUB_WORKSPACE (where 'actions/checkout' puts the repo)
+          path: TicTacToeProject/TicTacToeProject-12e724028cb5f5dd670b7bb1447547c16c2fe3eb/release/TicTacToe1 # Adjust for correct project name and build location
