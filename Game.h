@@ -46,18 +46,18 @@ struct GameRecord {
 class Game {
 private:
     std::vector<std::vector<char>> board;
-    char currentPlayer;
-    int minimax(int depth, bool isMaximizing);
+    char currentPlayer; // Now always 'X' initially for a new game logic start
+    int minimax(int depth, bool isMaximizing); // Existing, but not currently used for AI logic (minimaxTree is)
     std::vector<GameRecord> gameHistory;
     AIDifficulty aiDifficulty;
     void makeEasyAIMove();
     void makeMediumAIMove();
-    void makeHardAIMove();
+    void makeHardAIMove(); // Updated logic
     bool findImminentWinOrBlock();
     void deleteTree(TreeNode* node);
 
 public:
-    Game();
+    Game(); // Constructor initializes currentPlayer to 'X'
     void displayBoard();
     bool makeMove(int row, int col);
     bool checkWin();
@@ -74,13 +74,17 @@ public:
     // Game Tree AI functions
     TreeNode* buildGameTree(char b[3][3], char currentPlayer);
     int evaluateBoard(char b[3][3]);
-    int minimaxTree(TreeNode* node, bool isMaximizing);
-    void makeAIMoveWithTree();
+    int minimaxTree(TreeNode* node, bool isMaximizing); // Used by IMPOSSIBLE
+    void makeAIMoveWithTree(); // Used by IMPOSSIBLE
+    void makeAIMoveWithLimitedTree(int depthLimit); // NEW: Used by HARD
     void makeAIMove(); // New function to handle difficulty levels
 
     // Game history functions
     void saveGame(const std::string& username, const std::string& result, const std::string& opponent);
     std::vector<GameRecord> getGameHistory(const std::string& username);
+
+    // Removed setStartingPlayer as Game will always start with 'X' internally.
+    // The MainWindow logic will manage who moves first based on human's chosen mark.
 };
 
 #endif // GAME_H

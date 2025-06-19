@@ -6,13 +6,19 @@
 #include <random>
 #include "Game.h"
 #include "DBManager.h"
+#include <QDebug> // For qWarning, if you want to use it for invalid player char
 
 Game::Game() {
     board = std::vector<std::vector<char>>(3, std::vector<char>(3, ' '));
+    // Game always starts with 'X' from the internal game logic perspective.
+    // The MainWindow will manage who makes the first move based on user's choice.
     currentPlayer = 'X';
     aiDifficulty = AIDifficulty::MEDIUM; // Default to medium difficulty
     std::srand(static_cast<unsigned int>(std::time(nullptr))); // Initialize random seed
 }
+
+// Removed Game::setStartingPlayer as it's no longer needed.
+// The Game object's currentPlayer is always 'X' at the start of a new Game instance.
 
 void Game::setAIDifficulty(AIDifficulty difficulty) {
     aiDifficulty = difficulty;
@@ -52,7 +58,7 @@ bool Game::checkWin() {
              board[i][2] == currentPlayer) ||
             (board[0][i] == currentPlayer &&
              board[1][i] == currentPlayer &&
-             board[2][i] == currentPlayer))
+             (board[2][i] == currentPlayer)))
             return true;
     }
     // diagonals
@@ -103,45 +109,58 @@ std::string Game::getBoardStateAsString() {
 
 int Game::evaluateBoard(char b[3][3]) {
     // Check rows, columns and diagonals for win
+    // 'O' is generally the maximizing player in minimax for standard Tic-Tac-Toe
+    // 'X' is generally the minimizing player.
+    // This evaluation assumes 'O' wants to maximize, 'X' wants to minimize.
     for (int i = 0; i < 3; ++i) {
         if (b[i][0] == b[i][1] && b[i][1] == b[i][2] && b[i][0] != ' ')
-            return (b[i][0] == 'O') ? 1 : -1;
+            return (b[i][0] == 'O') ? 1 : -1; // Score +1 for O win, -1 for X win
         if (b[0][i] == b[1][i] && b[1][i] == b[2][i] && b[0][i] != ' ')
-            return (b[0][i] == 'O') ? 1 : -1;
+            return (b[0][i] == 'O') ? 1 : -1; // Score +1 for O win, -1 for X win
     }
     if (b[0][0] == b[1][1] && b[1][1] == b[2][2] && b[0][0] != ' ')
-        return (b[0][0] == 'O') ? 1 : -1;
+        return (b[0][0] == 'O') ? 1 : -1; // Score +1 for O win, -1 for X win
     if (b[0][2] == b[1][1] && b[1][1] == b[2][0] && b[0][2] != ' ')
-        return (b[0][2] == 'O') ? 1 : -1;
-    return 0;
+        return (b[0][2] == 'O') ? 1 : -1; // Score +1 for O win, -1 for X win
+    return 0; // Draw or game in progress
 }
 
 bool isDraw(char b[3][3]) {
     for (int i = 0; i < 3; ++i)
         for (int j = 0; j < 3; ++j)
-            if (b[i][j] == ' ') return false;
-    return true;
+            if (b[i][j] == ' ') return false; // Found an empty spot, not a draw
+    return true; // No empty spots, it's a draw or a win (win checked separately)
 }
 
-TreeNode* Game::buildGameTree(char b[3][3], char currentPlayer) {
-    TreeNode* node = new TreeNode(b, currentPlayer);
+TreeNode* Game::buildGameTree(char b[3][3], char playerForNode) {
+    TreeNode* node = new TreeNode(b, playerForNode);
     int score = evaluateBoard(b);
-    if (score != 0 || isDraw(b)) {
+
+    // If game is over (win or draw), set score and return
+    if (score != 0) { // Someone won
         node->score = score;
         return node;
     }
+    if (isDraw(b)) { // It's a draw
+        node->score = 0;
+        return node;
+    }
 
-    char nextPlayer = (currentPlayer == 'X') ? 'O' : 'X';
+    // Determine the next player for the children nodes
+    char nextPlayer = (playerForNode == 'X') ? 'O' : 'X';
+
+    // Generate children for all possible moves
     for (int i = 0; i < 3; ++i) {
         for (int j = 0; j < 3; ++j) {
             if (b[i][j] == ' ') {
                 char newBoard[3][3];
+                // Copy current board to newBoard for the child node
                 for (int x = 0; x < 3; ++x)
                     for (int y = 0; y < 3; ++y)
                         newBoard[x][y] = b[x][y];
 
-                newBoard[i][j] = currentPlayer;
-                TreeNode* child = buildGameTree(newBoard, nextPlayer);
+                newBoard[i][j] = playerForNode; // Make the move for this child
+                TreeNode* child = buildGameTree(newBoard, nextPlayer); // Recursively build child tree
                 node->children.push_back(child);
             }
         }
@@ -151,15 +170,25 @@ TreeNode* Game::buildGameTree(char b[3][3], char currentPlayer) {
 }
 
 int Game::minimaxTree(TreeNode* node, bool isMaximizing) {
+    // If it's a leaf node (game over), return its score
     if (node->children.empty()) return node->score;
 
-    int bestScore = isMaximizing ? -1000 : 1000;
-    for (TreeNode* child : node->children) {
-        int score = minimaxTree(child, !isMaximizing);
-        bestScore = isMaximizing ? std::max(score, bestScore) : std::min(score, bestScore);
+    int bestScore;
+    if (isMaximizing) {
+        bestScore = -1000; // Initialize with a very low score for maximizing player
+        for (TreeNode* child : node->children) {
+            // Recursively call for opponent's turn (not maximizing)
+            bestScore = std::max(bestScore, minimaxTree(child, false));
+        }
+    } else {
+        bestScore = 1000; // Initialize with a very high score for minimizing player
+        for (TreeNode* child : node->children) {
+            // Recursively call for maximizing player's turn
+            bestScore = std::min(bestScore, minimaxTree(child, true));
+        }
     }
 
-    node->score = bestScore;
+    node->score = bestScore; // Store the calculated best score for this node
     return bestScore;
 }
 
@@ -202,7 +231,7 @@ void Game::makeEasyAIMove() {
         int randomIndex = rand() % availableMoves.size();
         int row = availableMoves[randomIndex].first;
         int col = availableMoves[randomIndex].second;
-        board[row][col] = currentPlayer;
+        board[row][col] = currentPlayer; // AI makes move as its current player mark
     }
 }
 
@@ -271,7 +300,7 @@ bool Game::findImminentWinOrBlock() {
                 // Check if this wins
                 bool wins = checkWin();
 
-                // Undo move
+                // Undo move (backtrack)
                 board[i][j] = ' ';
 
                 if (wins) {
@@ -284,7 +313,7 @@ bool Game::findImminentWinOrBlock() {
     }
 
     // Then check if player is about to win and block them
-    char savedCurrentPlayer = currentPlayer;
+    char savedCurrentPlayer = currentPlayer; // Temporarily switch player to check opponent's win
     currentPlayer = opponent;
 
     for (int i = 0; i < 3; ++i) {
@@ -296,68 +325,88 @@ bool Game::findImminentWinOrBlock() {
                 // Check if opponent would win
                 bool opponentWins = checkWin();
 
-                // Undo move
+                // Undo move (backtrack)
                 board[i][j] = ' ';
 
                 if (opponentWins) {
                     // Block the opponent's winning move
-                    board[i][j] = savedCurrentPlayer;
-                    currentPlayer = savedCurrentPlayer;
+                    board[i][j] = savedCurrentPlayer; // Make the blocking move as AI
+                    currentPlayer = savedCurrentPlayer; // Restore AI's mark
                     return true;
                 }
             }
         }
     }
 
-    // Restore current player
+    // Restore current player if no block was found (no change made to board)
     currentPlayer = savedCurrentPlayer;
     return false;
 }
+
 
 void Game::makeAIMoveWithTree() {
     char tempBoard[3][3];
     for (int i = 0; i < 3; ++i)
         for (int j = 0; j < 3; ++j)
-            tempBoard[i][j] = board[i][j]; // convert vector to array
+            tempBoard[i][j] = board[i][j]; // Convert vector to C-style array for tree building
 
-    TreeNode* root = buildGameTree(tempBoard, 'O');
-    minimaxTree(root, true);
+    // The AI player's mark is the current player in the Game object when makeAIMove is called.
+    char aiPlayerMark = currentPlayer;
 
-    int bestScore = -1000;
-    TreeNode* bestMove = nullptr;
-    for (TreeNode* child : root->children) {
-        if (child->score > bestScore) {
-            bestScore = child->score;
-            bestMove = child;
+    TreeNode* root = buildGameTree(tempBoard, aiPlayerMark);
+
+    // Pass true if AI is 'O' (maximizing), false if AI is 'X' (minimizing)
+    bool isAIMaximizing = (aiPlayerMark == 'O');
+    minimaxTree(root, isAIMaximizing);
+
+    int bestScore = isAIMaximizing ? -1000 : 1000; // Initialize based on whether AI is maximizing or minimizing
+    TreeNode* bestMove = nullptr; // Pointer to the chosen best move node
+
+    // Iterate through children to find the move that leads to the best score
+    if (isAIMaximizing) {
+        for (TreeNode* child : root->children) {
+            if (child->score > bestScore) {
+                bestScore = child->score;
+                bestMove = child;
+            }
+        }
+    } else { // AI is minimizing
+        for (TreeNode* child : root->children) {
+            if (child->score < bestScore) {
+                bestScore = child->score;
+                bestMove = child;
+            }
         }
     }
 
     if (bestMove) {
+        // Update the actual game board with the chosen best move
         for (int i = 0; i < 3; ++i)
             for (int j = 0; j < 3; ++j)
-                board[i][j] = bestMove->board[i][j]; // update the actual vector board
+                board[i][j] = bestMove->board[i][j]; // Update the actual vector board
     }
 
-    // Clean up the tree to avoid memory leaks
-    deleteTree(root); // Add this helper function to clean up the tree
+    // Clean up the dynamically allocated game tree to prevent memory leaks
+    deleteTree(root);
 }
 
-// Helper function to delete the tree and free memory
+// Helper function to delete the game tree and free memory recursively
 void Game::deleteTree(TreeNode* node) {
-    if (!node) return;
+    if (!node) return; // Base case: if node is null, do nothing
 
+    // Recursively delete all children first
     for (TreeNode* child : node->children) {
         deleteTree(child);
     }
 
-    delete node;
+    delete node; // Delete the current node after its children are deleted
 }
 
 void Game::saveGame(const std::string& username, const std::string& result, const std::string& opponent) {
     GameRecord record(username, result, opponent);
     record.boardState = getBoardStateAsString();
 
-    // Save to database
+    // Save to database using the DBManager singleton
     DBManager::getInstance().saveGameRecord(record);
 }
 

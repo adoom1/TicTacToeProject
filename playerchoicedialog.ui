@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>PlayerChoiceDialog</class>
+ <widget class="QDialog" name="PlayerChoiceDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>300</width>
+    <height>200</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Choose Your Mark</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="leftMargin">
+    <number>20</number>
+   </property>
+   <property name="topMargin">
+    <number>20</number>
+   </property>
+   <property name="rightMargin">
+    <number>20</number>
+   </property>
+   <property name="bottomMargin">
+    <number>20</number>
+   </property>
+   <property name="spacing">
+    <number>20</number>
+   </property>
+   <item>
+    <widget class="QLabel" name="label_playAs">
+     <property name="font">
+      <font>
+       <family>Press Start 2P</family>
+       <pointsize>18</pointsize>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: #00ffff; text-shadow: 0 0 5px #00ffff;</string>
+     </property>
+     <property name="text">
+      <string>Play as:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <property name="spacing">
+      <number>20</number>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+     <item>
+      <widget class="QPushButton" name="xButton">
+       <property name="minimumSize">
+        <size>
+         <width>100</width>
+         <height>100</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>100</width>
+         <height>100</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Press Start 2P</family>
+         <pointsize>40</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton {
+	font-size: 40px; color: #00ffff; border: 4px solid #00ffff;
+	background-color: #8a2be2; border-radius: 8px; 
+	font-family: 'Press Start 2P', monospace; font-weight: bold;
+	text-align: center;
+}
+QPushButton:hover { background-color: #6a0dad; }
+QPushButton:pressed { background-color: #4b0082; }</string>
+       </property>
+       <property name="text">
+        <string>X</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="oButton">
+       <property name="minimumSize">
+        <size>
+         <width>100</width>
+         <height>100</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>100</width>
+         <height>100</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Press Start 2P</family>
+         <pointsize>40</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton {
+	font-size: 40px; color: #ff00ff; border: 4px solid #ff00ff;
+	background-color: #8a2be2; border-radius: 8px; 
+	font-family: 'Press Start 2P', monospace; font-weight: bold;
+	text-align: center;
+}
+QPushButton:hover { background-color: #6a0dad; }
+QPushButton:pressed { background-color: #4b0082; }</string>
+       </property>
+       <property name="text">
+        <string>O</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
+
+

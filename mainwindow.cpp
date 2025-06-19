@@ -1,4 +1,7 @@
 #include "MainWindow.h"
+#include "BoardStateDelegate.h" // Include the new delegate header
+#include "playerchoicedialog.h" // Include the new PlayerChoiceDialog header
+#include "difficultyselector.h" // NEW: Include the new DifficultyDialog header
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QFormLayout>
@@ -8,274 +11,211 @@
 #include <QTimer>
 #include <QComboBox>
 #include <QDialogButtonBox>
-#include <QHeaderView> // Added missing include for QHeaderView
+#include <QHeaderView>
 
-// Implementation of DifficultyDialog
-DifficultyDialog::DifficultyDialog(QWidget *parent) : QDialog(parent) {
-    setWindowTitle("Select AI Difficulty");
-
-    setStyleSheet(
-        "QDialog { background-color: #ecf0f1; }"
-        "QLabel { font-size: 16px; color: #2c3e50; padding: 5px; }"
-        "QComboBox { "
-        "   font-size: 14px; padding: 5px; border: 1px solid #bdc3c7; "
-        "   border-radius: 4px; background-color: white; "
-        "   selection-background-color: #3498db; min-width: 200px; "
-        "}"
-        "QPushButton { "
-        "   background-color: #3498db; color: white; "
-        "   padding: 6px 12px; border-radius: 4px; "
-        "   font-weight: bold; min-width: 80px; "
-        "}"
-        "QPushButton:hover { background-color: #2980b9; }"
-        );
-
-    QVBoxLayout *layout = new QVBoxLayout(this);
-
-    QLabel *label = new QLabel("Select AI Difficulty Level:", this);
-    difficultyComboBox = new QComboBox(this);
-    difficultyComboBox->addItem("Easy", static_cast<int>(AIDifficulty::EASY));
-    difficultyComboBox->addItem("Medium", static_cast<int>(AIDifficulty::MEDIUM));
-    difficultyComboBox->addItem("Hard", static_cast<int>(AIDifficulty::HARD));
-    difficultyComboBox->addItem("Impossible", static_cast<int>(AIDifficulty::IMPOSSIBLE));
-
-    QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-
-    connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
-    connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
-
-    layout->addWidget(label);
-    layout->addWidget(difficultyComboBox);
-    layout->addWidget(buttonBox);
-    layout->setContentsMargins(20, 20, 20, 20);
-    layout->setSpacing(15);
-}
-AIDifficulty DifficultyDialog::getSelectedDifficulty() const {
-    return static_cast<AIDifficulty>(difficultyComboBox->currentData().toInt());
-}
+// The implementations of DifficultyDialog and PlayerChoiceDialog
+// are now in their respective .cpp files (difficultyselector.cpp and playerchoicedialog.cpp)
+// so they are removed from here.
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent), isPlayingAI(false), currentDifficulty(AIDifficulty::MEDIUM)
+    : QMainWindow(parent),
+    ui(new Ui::MainWindow()), // Initialize the ui object
+    isPlayingAI(false), currentDifficulty(AIDifficulty::MEDIUM),
+    playerMarkSelectedByHuman('X') // Initialize with a default
 {
-    stackedWidget = new QStackedWidget(this);
-    setCentralWidget(stackedWidget);
+    ui->setupUi(this); // Set up the UI from the .ui file
 
-    setupLoginUI();
-    setupGameUI();
-    setupHistoryUI();
-    setupMenusAndToolbars();
-    connectSignalsAndSlots();
+    // Apply main window and central widget background color
+    this->setStyleSheet("QMainWindow { background-color: #1a1a1a; }");
+    ui->centralwidget->setStyleSheet("QWidget#centralwidget { background-color: #1a1a1a; }"); // Ensure central widget is black
 
-    // Start with login screen
-    stackedWidget->setCurrentWidget(loginWidget);
+    // Assign pointers to widgets defined in the .ui file
+    stackedWidget = ui->stackedWidget;
+    loginWidget = ui->loginWidget;
+    usernameInput = ui->usernameInput;
+    passwordInput = ui->passwordInput;
+    loginButton = ui->loginButton;
+    signupButton = ui->signupButton;
 
-    resize(500, 600);
-}
+    gameWidget = ui->gameWidget;
+    boardWidget = ui->boardWidget;
+    statusLabel = ui->statusLabel;
+    difficultyLabel = ui->difficultyLabel;
 
-MainWindow::~MainWindow()
-{
-    // Clean up code here
-}
+    // Assign the board buttons using the object names from the UI file
+    // AND set properties here for game logic
+    boardButtons[0][0] = ui->boardButtons_0_0;
+    boardButtons[0][1] = ui->boardButtons_0_1;
+    boardButtons[0][2] = ui->boardButtons_0_2;
+    boardButtons[1][0] = ui->boardButtons_1_0;
+    boardButtons[1][1] = ui->boardButtons_1_1;
+    boardButtons[1][2] = ui->boardButtons_1_2;
+    boardButtons[2][0] = ui->boardButtons_2_0;
+    boardButtons[2][1] = ui->boardButtons_2_1;
+    boardButtons[2][2] = ui->boardButtons_2_2;
 
-void MainWindow::setupLoginUI() {
-    loginWidget = new QWidget();
-    loginWidget->setStyleSheet(
-        "QWidget { background-color: #ecf0f1; }"
-        "QLabel { color: #2c3e50; }"
-        "QLineEdit { "
-        "   padding: 8px; border: 1px solid #bdc3c7; "
-        "   border-radius: 4px; background-color: white; "
-        "}"
-        "QPushButton { "
-        "   background-color: #3498db; color: white; "
-        "   padding: 8px 16px; border-radius: 4px; "
-        "   font-weight: bold; min-width: 100px; "
-        "}"
-        "QPushButton:hover { background-color: #2980b9; }"
-        );
-
-    QVBoxLayout *layout = new QVBoxLayout(loginWidget);
-
-    QLabel *titleLabel = new QLabel("Advanced Tic Tac Toe");
-    titleLabel->setStyleSheet("font-size: 32px; font-weight: bold; color: #3498db;");
-    titleLabel->setAlignment(Qt::AlignCenter);
-
-    QWidget *formWidget = new QWidget();
-    formWidget->setStyleSheet("background-color: white; border-radius: 10px; padding: 20px;");
-    QFormLayout *formLayout = new QFormLayout(formWidget);
-
-    usernameInput = new QLineEdit();
-    passwordInput = new QLineEdit();
-    passwordInput->setEchoMode(QLineEdit::Password);
-
-    formLayout->addRow("Username:", usernameInput);
-    formLayout->addRow("Password:", passwordInput);
-    formLayout->setSpacing(15);
-    formLayout->setContentsMargins(20, 20, 20, 20);
-
-    QHBoxLayout *buttonLayout = new QHBoxLayout();
-    loginButton = new QPushButton("Login");
-    signupButton = new QPushButton("Sign Up");
-    signupButton->setStyleSheet(
-        "background-color: #2ecc71; color: white; "
-        "padding: 8px 16px; border-radius: 4px; "
-        "font-weight: bold; min-width: 100px;"
-        );
-    signupButton->setStyleSheet("background-color: #2ecc71;");
-
-    buttonLayout->addWidget(loginButton);
-    buttonLayout->addWidget(signupButton);
-    buttonLayout->setSpacing(15);
-
-    layout->addWidget(titleLabel);
-    layout->addSpacing(30);
-    layout->addWidget(formWidget);
-    layout->addSpacing(20);
-    layout->addLayout(buttonLayout);
-    layout->setAlignment(buttonLayout, Qt::AlignCenter);
-    layout->addStretch();
-    layout->setContentsMargins(40, 40, 40, 40);
-
-    stackedWidget->addWidget(loginWidget);
-}
-
-void MainWindow::setupGameUI()
-{
-    gameWidget = new QWidget();
-    QVBoxLayout *layout = new QVBoxLayout(gameWidget);
-
-    statusLabel = new QLabel("Player X's turn");
-    statusLabel->setAlignment(Qt::AlignCenter);
-    statusLabel->setStyleSheet(
-        "font-size: 24px; font-weight: bold; color: #2c3e50; "
-        "background-color: #ecf0f1; padding: 10px; "
-        "border: 1px solid #bdc3c7; border-radius: 5px;"
-        );
-
-    difficultyLabel = new QLabel("");
-    difficultyLabel->setAlignment(Qt::AlignCenter);
-    difficultyLabel->setStyleSheet(
-        "font-size: 16px; color: #7f8c8d; "
-        "background-color: #ecf0f1; padding: 5px; "
-        "border: 1px solid #bdc3c7; border-radius: 5px;"
-        );
-
-    // In MainWindow::setupGameUI()
-    QWidget *boardWidget = new QWidget();
-    boardWidget->setStyleSheet(
-        "background-color: #34495e; padding: 20px; border-radius: 15px;"
-        );
-    boardLayout = new QGridLayout(boardWidget);
-    boardLayout->setSpacing(10);
-
-    for (int row = 0; row < 3; row++) {
-        for (int col = 0; col < 3; col++) {
-            boardButtons[row][col] = new QPushButton("");
-            boardButtons[row][col]->setFixedSize(120, 120); // Slightly larger buttons
-            boardButtons[row][col]->setStyleSheet(
-                "font-size: 40px; font-weight: bold; "
-                "background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #f5f5f5, stop:1 #e0e0e0); "
-                "border: 1px solid #bdc3c7; border-radius: 10px;"
-                );
-            boardButtons[row][col]->setProperty("row", row);
-            boardButtons[row][col]->setProperty("col", col);
-
-            boardLayout->addWidget(boardButtons[row][col], row, col);
+    // Set row/col properties for each button explicitly after assignment
+    for (int r = 0; r < 3; ++r) {
+        for (int c = 0; c < 3; ++c) {
+            boardButtons[r][c]->setProperty("row", r);
+            boardButtons[r][c]->setProperty("col", c);
         }
     }
-    boardLayout->setSpacing(10); // Increase spacing between cells
 
-    layout->addWidget(statusLabel);
-    layout->addWidget(difficultyLabel);
-    layout->addWidget(boardWidget);
-    layout->setAlignment(boardWidget, Qt::AlignCenter);
 
-    stackedWidget->addWidget(gameWidget);
-}
+    newGameButtonUI = ui->newGameButtonUI;
+    playAIButtonUI = ui->playAIButtonUI;
+    playHumanButtonUI = ui->playHumanButtonUI;
+    viewHistoryButtonUI = ui->viewHistoryButtonUI;
+    logoutButtonUI = ui->logoutButtonUI;
 
-void MainWindow::setupHistoryUI() {
-    historyWidget = new QWidget();
-    historyWidget->setStyleSheet(
-        "QWidget { background-color: #ecf0f1; }"
-        "QLabel { color: #2c3e50; }"
-        "QTableView { "
-        "   background-color: white; alternate-background-color: #f5f5f5; "
-        "   border: 1px solid #bdc3c7; border-radius: 5px; "
-        "   gridline-color: #d0d0d0; "
-        "}"
-        "QHeaderView::section { "
-        "   background-color: #3498db; color: white; "
-        "   padding: 5px; border: 1px solid #2980b9; "
-        "   font-weight: bold; "
-        "}"
-        "QPushButton { "
-        "   background-color: #3498db; color: white; "
-        "   padding: 8px 16px; border-radius: 4px; "
-        "   font-weight: bold; min-width: 150px; "
-        "}"
-        "QPushButton:hover { background-color: #2980b9; }"
-        );
-
-    QVBoxLayout *layout = new QVBoxLayout(historyWidget);
-
-    QLabel *titleLabel = new QLabel("Game History");
-    titleLabel->setStyleSheet("font-size: 28px; font-weight: bold; color: #3498db;");
-    titleLabel->setAlignment(Qt::AlignCenter);
-
-    historyTableView = new QTableView();
+    historyWidget = ui->historyWidget;
+    historyTableView = ui->historyTableView;
     historyModel = new GameHistoryModel(this);
     historyTableView->setModel(historyModel);
+    boardStateDelegate = new BoardStateDelegate(this);
+    historyTableView->setItemDelegateForColumn(3, boardStateDelegate);
     historyTableView->setAlternatingRowColors(true);
     historyTableView->setSelectionBehavior(QAbstractItemView::SelectRows);
     historyTableView->setSelectionMode(QAbstractItemView::SingleSelection);
     historyTableView->horizontalHeader()->setStretchLastSection(true);
     historyTableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     historyTableView->verticalHeader()->setVisible(false);
+    historyTableView->setWordWrap(true);
+    historyTableView->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
-    QPushButton *backButton = new QPushButton("Back to Game");
 
-    layout->addWidget(titleLabel);
-    layout->addSpacing(15);
-    layout->addWidget(historyTableView);
-    layout->addSpacing(15);
-    layout->addWidget(backButton);
-    layout->setAlignment(backButton, Qt::AlignCenter);
-    layout->setContentsMargins(20, 20, 20, 20);
+    // Assign menu and toolbar components
+    mainMenuBar = ui->menubar;
+    toolBar = ui->toolBar;
+    newGameAction = ui->actionNew_Game;
+    viewHistoryAction = ui->actionView_History;
+    playAIAction = ui->actionPlay_vs_AI;
+    playHumanAction = ui->actionPlay_vs_Human;
+    logoutAction = ui->actionLogout;
 
-    connect(backButton, &QPushButton::clicked, [this]() {
+    connectSignalsAndSlots();
+
+    // Start with login screen
+    stackedWidget->setCurrentWidget(loginWidget); // Use assigned pointer
+
+    // Apply initial styles (these can be moved to a .qss file or stay here)
+    loginWidget->setStyleSheet(
+        "QWidget { background-color: #1a1a1a; }" // Dark background
+        "QLabel { font-family: 'Press Start 2P', monospace; color: #00ffff; text-shadow: 0 0 5px #00ffff; }" // Neon blue with glow
+        "QLineEdit { "
+        "   padding: 10px; border: 2px solid #ff00ff; " // Neon pink border
+        "   border-radius: 5px; background-color: #333333; color: #00ff00; " // Dark background, neon green text
+        "   font-family: 'Press Start 2P', monospace; font-size: 14px; text-shadow: 0 0 3px #00ff00; "
+        "}"
+        "QPushButton { "
+        "   background-color: #8a2be2; color: white; " // Blue-violet
+        "   padding: 10px 20px; border-radius: 8px; "
+        "   font-family: 'Press Start 2P', monospace; font-weight: bold; min-width: 120px; "
+        "   border: 2px solid #ff00ff; "
+        "   box-shadow: 0 0 10px rgba(255, 0, 255, 0.7);" // Glow effect
+        "}"
+        "QPushButton:hover { background-color: #6a0dad; box-shadow: 0 0 15px rgba(255, 0, 255, 1); }"
+        "QPushButton:pressed { background-color: #4b0082; }"
+        );
+
+    // Specific style for signup button
+    signupButton->setStyleSheet(
+        "background-color: #00cc00; color: white; " // Brighter green for signup
+        "padding: 10px 20px; border-radius: 8px; "
+        "font-family: 'Press Start 2P', monospace; font-weight: bold; min-width: 120px;"
+        "border: 2px solid #00ff00; " // Neon green border
+        "box-shadow: 0 0 10px rgba(0, 255, 0, 0.7);"
+        );
+
+    // Apply specific style for New Game button (green theme)
+    newGameButtonUI->setStyleSheet(
+        "QPushButton { "
+        "   background-color: #00cc00; color: white; " // Bright green
+        "   padding: 10px 20px; border-radius: 8px; "
+        "   font-family: 'Press Start 2P', monospace; font-weight: bold; min-width: 120px;"
+        "   border: 2px solid #00ff00; " // Neon green border
+        "   box-shadow: 0 0 10px rgba(0, 255, 0, 0.7);"
+        "}"
+        "QPushButton:hover { background-color: #009900; box-shadow: 0 0 15px rgba(0, 255, 0, 1); }"
+        "QPushButton:pressed { background-color: #006600; }"
+        );
+
+    // Common base style for most buttons
+    QString commonButtonStyle =
+        "QPushButton { "
+        "   background-color: #8a2be2; color: white; " // Blue-violet
+        "   padding: 10px 20px; border-radius: 8px; "
+        "   font-family: 'Press Start 2P', monospace; font-weight: bold; min-width: 120px; "
+        "   border: 2px solid #ff00ff; "
+        "   box-shadow: 0 0 10px rgba(255, 0, 255, 0.7);"
+        "}"
+        "QPushButton:hover { background-color: #6a0dad; box-shadow: 0 0 15px rgba(255, 0, 255, 1); }"
+        "QPushButton:pressed { background-color: #4b0082; }"
+        ;
+
+    // Apply common style to other action buttons
+    playAIButtonUI->setStyleSheet(commonButtonStyle);
+    playHumanButtonUI->setStyleSheet(commonButtonStyle);
+    viewHistoryButtonUI->setStyleSheet(commonButtonStyle);
+    loginButton->setStyleSheet(commonButtonStyle); // Apply to login button as well
+
+    // Apply specific style for Logout button (red theme)
+    logoutButtonUI->setStyleSheet(
+        "QPushButton { "
+        "   background-color: #cc0000; color: white; " // Red
+        "   padding: 10px 20px; border-radius: 8px; "
+        "   font-family: 'Press Start 2P', monospace; font-weight: bold; min-width: 120px; "
+        "   border: 2px solid #ff00ff; " // Neon pink border (consistent border glow)
+        "   box-shadow: 0 0 10px rgba(255, 0, 255, 0.7);"
+        "}"
+        "QPushButton:hover { background-color: #990000; box-shadow: 0 0 15px rgba(255, 0, 255, 1); }"
+        "QPushButton:pressed { background-color: #660000; }"
+        );
+
+    // Initial styling for board buttons
+    for (int row = 0; row < 3; row++) {
+        for (int col = 0; col < 3; col++) {
+            boardButtons[row][col]->setStyleSheet(
+                "font-family: 'Press Start 2P', monospace; font-size: 40px; font-weight: bold; "
+                "background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #1a1a1a, stop:1 #333333); "
+                "border: 2px solid #00ff00; border-radius: 15px; " // Neon green border
+                "color: #aaaaaa;" // Dim text color
+                "box-shadow: 0 0 8px rgba(0, 255, 0, 0.5);"
+                );
+        }
+    }
+
+    // Set styling for history view
+    historyWidget->setStyleSheet(
+        "QWidget { background-color: #1a1a1a; }"
+        "QLabel { font-family: 'Press Start 2P', monospace; color: #00ffff; text-shadow: 0 0 5px #00ffff; }"
+        "QTableView { "
+        "   background-color: #222222; alternate-background-color: #333333; " // Dark cells
+        "   border: 2px solid #ff00ff; border-radius: 10px; " // Neon pink border
+        "   gridline-color: #8a2be2; " // Purple grid lines
+        "   font-family: 'Press Start 2P', monospace; font-size: 14px; color: #00ff00; " // Neon green text (Increased font size)
+        "}"
+        "QHeaderView::section { "
+        "   background-color: #6a0dad; color: #00ffff; " // Darker purple header, neon blue text
+        "   padding: 8px; border: 1px solid #ff00ff; "
+        "   font-family: 'Press Start 2P', monospace; font-weight: bold; text-shadow: 0 0 3px #00ffff; "
+        "}"
+        "QPushButton { "
+        "   background-color: #8a2be2; color: white; "
+        "   padding: 10px 20px; border-radius: 8px; "
+        "   font-family: 'Press Start 2P', monospace; font-weight: bold; min-width: 150px; "
+        "   border: 2px solid #ff00ff; "
+        "   box-shadow: 0 0 10px rgba(255, 0, 255, 0.7);"
+        "}"
+        "QPushButton:hover { background-color: #6a0dad; box-shadow: 0 0 15px rgba(255, 0, 255, 1); }"
+        "QPushButton:pressed { background-color: #4b0082; }"
+        );
+
+    // Connect back button in history view
+    connect(ui->backButton_history, &QPushButton::clicked, [this]() {
         stackedWidget->setCurrentWidget(gameWidget);
     });
-
-    stackedWidget->addWidget(historyWidget);
-}
-
-void MainWindow::setupMenusAndToolbars()
-{
-    // Create menu bar
-    mainMenuBar = menuBar(); // Use QMainWindow::menuBar()
-    QMenu *gameMenu = mainMenuBar->addMenu("Game");
-    QMenu *viewMenu = mainMenuBar->addMenu("View");
-    QMenu *accountMenu = mainMenuBar->addMenu("Account");
-
-    // Create actions
-    newGameAction = new QAction("New Game", this);
-    viewHistoryAction = new QAction("View History", this);
-    playAIAction = new QAction("Play vs AI", this);
-    playHumanAction = new QAction("Play vs Human", this);
-    logoutAction = new QAction("Logout", this);
-
-    // Add actions to menus
-    gameMenu->addAction(newGameAction);
-    gameMenu->addAction(playAIAction);
-    gameMenu->addAction(playHumanAction);
-    viewMenu->addAction(viewHistoryAction);
-    accountMenu->addAction(logoutAction);
-
-    // Setup toolbar
-    toolBar = addToolBar("Main Toolbar");
-    toolBar->addAction(newGameAction);
-    toolBar->addAction(viewHistoryAction);
-    toolBar->addAction(logoutAction);
 
     // Initially disable game-related actions until login
     newGameAction->setEnabled(false);
@@ -283,83 +223,62 @@ void MainWindow::setupMenusAndToolbars()
     playAIAction->setEnabled(false);
     playHumanAction->setEnabled(false);
     logoutAction->setEnabled(false);
+    // Also disable the new UI buttons until login
+    newGameButtonUI->setEnabled(false);
+    playAIButtonUI->setEnabled(false);
+    playHumanButtonUI->setEnabled(false);
+    viewHistoryButtonUI->setEnabled(false);
+    logoutButtonUI->setEnabled(false);
+}
+
+MainWindow::~MainWindow()
+{
+    delete ui; // Clean up the ui object
 }
 
 void MainWindow::connectSignalsAndSlots()
 {
     // Login/signup connections
-    connect(loginButton, &QPushButton::clicked, this, &MainWindow::handleLoginButtonClicked);
-    connect(signupButton, &QPushButton::clicked, this, &MainWindow::handleSignupButtonClicked);
+    connect(ui->loginButton, &QPushButton::clicked, this, &MainWindow::handleLoginButtonClicked);
+    connect(ui->signupButton, &QPushButton::clicked, this, &MainWindow::handleSignupButtonClicked);
 
-    // Game board connections
+    // Game board connections (Modified to use lambda to capture row/col)
     for (int row = 0; row < 3; row++) {
         for (int col = 0; col < 3; col++) {
-            connect(boardButtons[row][col], &QPushButton::clicked, this, &MainWindow::handleBoardButtonClicked);
+            // Use a lambda to capture row and col by value for each button
+            connect(boardButtons[row][col], &QPushButton::clicked, this, [this, row, col]() {
+                this->handleBoardButtonClickedFromLambda(row, col);
+            });
         }
     }
 
-    // Menu action connections
-    connect(newGameAction, &QAction::triggered, this, &MainWindow::handleNewGameAction);
-    connect(viewHistoryAction, &QAction::triggered, this, &MainWindow::handleViewHistoryAction);
-    connect(playAIAction, &QAction::triggered, this, &MainWindow::handlePlayAIAction);
-    connect(playHumanAction, &QAction::triggered, this, &MainWindow::handlePlayHumanAction);
-    connect(logoutAction, &QAction::triggered, this, &MainWindow::handleLogoutAction);
+    // Menu action connections (these will now primarily call the UI button handlers)
+    // Connecting to new UI buttons' clicked signals which in turn call the handlers
+    connect(ui->actionNew_Game, &QAction::triggered, ui->newGameButtonUI, &QPushButton::clicked);
+    connect(ui->actionView_History, &QAction::triggered, ui->viewHistoryButtonUI, &QPushButton::clicked);
+    connect(ui->actionPlay_vs_AI, &QAction::triggered, ui->playAIButtonUI, &QPushButton::clicked);
+    connect(ui->actionPlay_vs_Human, &QAction::triggered, ui->playHumanButtonUI, &QPushButton::clicked);
+    connect(ui->actionLogout, &QAction::triggered, ui->logoutButtonUI, &QPushButton::clicked);
+
+    // Connect new UI buttons to existing handlers
+    connect(ui->newGameButtonUI, &QPushButton::clicked, this, &MainWindow::handleNewGameAction);
+    connect(ui->playAIButtonUI, &QPushButton::clicked, this, &MainWindow::handlePlayAIAction);
+    connect(ui->playHumanButtonUI, &QPushButton::clicked, this, &MainWindow::handlePlayHumanAction);
+    connect(ui->viewHistoryButtonUI, &QPushButton::clicked, this, &MainWindow::handleViewHistoryAction); // Connect new button
+    connect(ui->logoutButtonUI, &QPushButton::clicked, this, &MainWindow::handleLogoutAction);           // Connect new button
 }
 
-void MainWindow::handleLoginButtonClicked()
-{
-    QString username = usernameInput->text();
-    QString password = passwordInput->text();
-
-    if (username.isEmpty() || password.isEmpty()) {
-        QMessageBox::warning(this, "Login Error", "Username and password cannot be empty");
-        return;
-    }
-
-    if (user.login(username.toStdString(), password.toStdString())) {
-        currentUsername = username;
-        resetBoard();
-        stackedWidget->setCurrentWidget(gameWidget);
-
-        // Enable game-related actions
-        newGameAction->setEnabled(true);
-        viewHistoryAction->setEnabled(true);
-        playAIAction->setEnabled(true);
-        playHumanAction->setEnabled(true);
-        logoutAction->setEnabled(true);
-
-        historyModel->loadHistory(currentUsername);
-        statusLabel->setText("Player X's turn");
-        difficultyLabel->setText("");
-    } else {
-        QMessageBox::warning(this, "Login Error", "Invalid username or password");
-    }
-}
-
-void MainWindow::handleSignupButtonClicked()
-{
-    QString username = usernameInput->text();
-    QString password = passwordInput->text();
-
-    if (username.isEmpty() || password.isEmpty()) {
-        QMessageBox::warning(this, "Signup Error", "Username and password cannot be empty");
-        return;
-    }
-
-    if (user.signup(username.toStdString(), password.toStdString())) {
-        QMessageBox::information(this, "Signup Success", "Account created successfully! You can now login.");
-        usernameInput->clear();
-        passwordInput->clear();
-    }
-}
-
-void MainWindow::handleBoardButtonClicked() {
-    QPushButton *clickedButton = qobject_cast<QPushButton*>(sender());
-    int row = clickedButton->property("row").toInt();
-    int col = clickedButton->property("col").toInt();
-
+// New slot to handle board button clicks from lambda, taking row and col directly
+void MainWindow::handleBoardButtonClickedFromLambda(int row, int col) {
     if (game.makeMove(row, col)) {
         updateGameBoard();
+
+        // Disable all buttons immediately after a valid player move
+        for (int r = 0; r < 3; r++) {
+            for (int c = 0; c < 3; c++) {
+                boardButtons[r][c]->setEnabled(false);
+            }
+        }
 
         if (game.checkWin()) {
             displayGameResult(QString(game.getCurrentPlayer()));
@@ -373,19 +292,124 @@ void MainWindow::handleBoardButtonClicked() {
             return;
         }
 
-        game.switchPlayer();
-        statusLabel->setText(QString("Player %1's turn").arg(game.getCurrentPlayer()));
+        game.switchPlayer(); // Switch to the next player's turn
+        ui->statusLabel->setText(QString("Player %1's turn").arg(game.getCurrentPlayer()));
+        // Reapply default status label style after reset
+        ui->statusLabel->setStyleSheet(
+            "font-family: 'Press Start 2P', monospace; font-size: 28px; font-weight: bold; color: #ffff00; " // Neon yellow
+            "background-color: #333333; padding: 10px; "
+            "border: 2px solid #ff00ff; border-radius: 8px; text-shadow: 0 0 5px #ffff00;"
+            );
 
-        // If playing against AI and it's AI's turn (O), make AI move
-        if (isPlayingAI && game.getCurrentPlayer() == 'O') {
+
+        // If playing against AI and it's AI's turn (opposite of human's selected mark)
+        // Check if the current player (after switch) is NOT the human's chosen mark.
+        if (isPlayingAI && game.getCurrentPlayer() != playerMarkSelectedByHuman) {
             QTimer::singleShot(500, this, &MainWindow::processAIMove);
+        }
+        else {
+            // Re-enable buttons for the human player's turn
+            for (int r = 0; r < 3; r++) {
+                for (int c = 0; c < 3; c++) {
+                    if (game.getBoardValue(r, c) == ' ') {
+                        boardButtons[r][c]->setEnabled(true);
+                    }
+                }
+            }
         }
     }
 }
+
+
+void MainWindow::handleLoginButtonClicked()
+{
+    QString username = ui->usernameInput->text();
+    QString password = ui->passwordInput->text();
+
+    if (username.isEmpty() || password.isEmpty()) {
+        QMessageBox::warning(this, "Login Error", "Username and password cannot be empty");
+        return;
+    }
+
+    if (user.login(username.toStdString(), password.toStdString())) {
+        currentUsername = username;
+        stackedWidget->setCurrentWidget(gameWidget); // Use assigned pointer
+
+        // Enable game-related actions in menu
+        ui->actionNew_Game->setEnabled(true);
+        ui->actionView_History->setEnabled(true);
+        ui->actionPlay_vs_AI->setEnabled(true);
+        ui->actionPlay_vs_Human->setEnabled(true);
+        ui->actionLogout->setEnabled(true);
+        // Enable UI buttons
+        ui->newGameButtonUI->setEnabled(true);
+        ui->playAIButtonUI->setEnabled(true);
+        ui->playHumanButtonUI->setEnabled(true);
+        ui->viewHistoryButtonUI->setEnabled(true);
+        ui->logoutButtonUI->setEnabled(true);
+
+
+        historyModel->loadHistory(currentUsername);
+        // Set initial welcome message with desired pink styling
+        ui->statusLabel->setText("Welcome! Choose a game mode below or from 'Game' menu.");
+        ui->statusLabel->setStyleSheet(
+            "font-family: 'Press Start 2P', monospace; font-size: 28px; font-weight: bold; "
+            "color: #ff00ff; text-shadow: 0 0 5px #ff00ff;" // Neon pink with glow
+            "background-color: #333333; padding: 10px; "
+            "border: 2px solid #ff00ff; border-radius: 8px;" // Neon pink border
+            );
+        ui->difficultyLabel->setText(""); // This already clears it.
+
+        // --- START OF CHANGE ---
+        // Ensure a clean game state when logging in
+        isPlayingAI = false; // Reset game mode to human vs human by default
+        game = Game(); // Re-initialize game to clear board and reset current player to 'X'
+        updateGameBoard(); // Update the visual board to reflect the empty state
+        // --- END OF CHANGE ---
+
+    } else {
+        QMessageBox::warning(this, "Login Error", "Invalid username or password");
+    }
+}
+
+void MainWindow::handleSignupButtonClicked()
+{
+    QString username = ui->usernameInput->text();
+    QString password = ui->passwordInput->text();
+
+    if (username.isEmpty() || password.isEmpty()) {
+        QMessageBox::warning(this, "Signup Error", "Username and password cannot be empty");
+        return;
+    }
+
+    if (user.signup(username.toStdString(), password.toStdString())) {
+        QMessageBox::information(this, "Signup Success", "Account created successfully! You can now login.");
+        ui->usernameInput->clear();
+        ui->passwordInput->clear();
+    }
+}
+
+// Renamed handleBoardButtonClicked to handleBoardButtonClicked_Old for clarity, it's no longer used directly
+void MainWindow::handleBoardButtonClicked() {
+    // This function is no longer called directly from connectSignalsAndSlots,
+    // as we are now using handleBoardButtonClickedFromLambda.
+    // It's kept here as a placeholder in case any other part of your code
+    // was still connecting to it, but it should ideally be removed.
+}
+
 void MainWindow::processAIMove() {
     // Apply AI move based on current difficulty
     game.makeAIMove();
     updateGameBoard();
+
+    // After AI makes its move, re-enable the buttons for the human player
+    for (int r = 0; r < 3; r++) {
+        for (int c = 0; c < 3; c++) {
+            if (game.getBoardValue(r, c) == ' ') {
+                boardButtons[r][c]->setEnabled(true);
+            }
+        }
+    }
 
     if (game.checkWin()) {
         displayGameResult(QString(game.getCurrentPlayer()));
@@ -399,16 +423,20 @@ void MainWindow::processAIMove() {
         return;
     }
 
-    game.switchPlayer();
-    statusLabel->setText(QString("Player %1's turn").arg(game.getCurrentPlayer()));
+    game.switchPlayer(); // Switch to the next player's turn (human's turn)
+    ui->statusLabel->setText(QString("Player %1's turn").arg(game.getCurrentPlayer()));
+    // Reapply default status label style after AI turn
+    ui->statusLabel->setStyleSheet(
+        "font-family: 'Press Start 2P', monospace; font-size: 28px; font-weight: bold; color: #ffff00; " // Neon yellow
+        "background-color: #333333; padding: 10px; "
+        "border: 2px solid #ff00ff; border-radius: 8px; text-shadow: 0 0 5px #ffff00;"
+        );
 }
 
 void MainWindow::handleNewGameAction() {
-    resetBoard();
-    if (isPlayingAI) {
-        game.setAIDifficulty(currentDifficulty);
-        updateDifficultyLabel();
-    }
+    // This action now consistently leads to player choice, then game mode
+    // It doesn't set isPlayingAI directly, as that is set by Play AI/Play Human actions.
+    showPlayerChoiceSelector();
 }
 
 void MainWindow::handleViewHistoryAction() {
@@ -417,30 +445,34 @@ void MainWindow::handleViewHistoryAction() {
 }
 
 void MainWindow::handlePlayAIAction() {
-    showDifficultySelector();
     isPlayingAI = true;
-    resetBoard();
-    updateDifficultyLabel();
+    showPlayerChoiceSelector(); // This will trigger resetBoard and then difficulty selection
 }
 
 void MainWindow::handlePlayHumanAction() {
     isPlayingAI = false;
-    resetBoard();
-    difficultyLabel->setText("");
+    showPlayerChoiceSelector(); // This will trigger resetBoard
+    // Difficulty label will be cleared in resetBoard
 }
 
 void MainWindow::handleLogoutAction() {
     currentUsername = "";
-    usernameInput->clear();
-    passwordInput->clear();
+    ui->usernameInput->clear();
+    ui->passwordInput->clear();
     stackedWidget->setCurrentWidget(loginWidget);
 
-    // Disable game-related actions
+    // Disable game-related actions in menu and UI buttons
     newGameAction->setEnabled(false);
     viewHistoryAction->setEnabled(false);
     playAIAction->setEnabled(false);
     playHumanAction->setEnabled(false);
     logoutAction->setEnabled(false);
+
+    newGameButtonUI->setEnabled(false);
+    playAIButtonUI->setEnabled(false);
+    playHumanButtonUI->setEnabled(false);
+    viewHistoryButtonUI->setEnabled(false);
+    logoutButtonUI->setEnabled(false);
 }
 
 void MainWindow::updateGameBoard() {
@@ -452,64 +484,64 @@ void MainWindow::updateGameBoard() {
             // Updated styling with gradient background and rounded corners
             if (value == 'X') {
                 boardButtons[row][col]->setStyleSheet(
-                    "font-size: 40px; font-weight: bold; color: #3498db; "
-                    "background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #f0f9ff, stop:1 #d6eaf8); "
-                    "border: 2px solid #3498db; border-radius: 10px;"
+                    "font-family: 'Press Start 2P', monospace; font-size: 50px; font-weight: bold; color: #00ffff; " // Brighter neon blue for X
+                    "background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #005555, stop:1 #008888); " // Darker blue gradient
+                    "border: 4px solid #00ffff; border-radius: 15px; " // Thicker neon blue border
+                    "box-shadow: 0 0 15px rgba(0, 255, 255, 0.8);" // Stronger glow
                     );
             } else if (value == 'O') {
                 boardButtons[row][col]->setStyleSheet(
-                    "font-size: 40px; font-weight: bold; color: #e74c3c; "
-                    "background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #fff5f5, stop:1 #fdedec); "
-                    "border: 2px solid #e74c3c; border-radius: 10px;"
+                    "font-family: 'Press Start 2P', monospace; font-size: 50px; font-weight: bold; color: #ff00ff; " // Neon pink for O
+                    "background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #550055, stop:1 #880088); " // Darker pink gradient
+                    "border: 4px solid #ff00ff; border-radius: 15px; " // Thicker neon pink border
+                    "box-shadow: 0 0 15px rgba(255, 0, 255, 0.8);" // Stronger glow
                     );
             } else {
                 // Empty cell styling
                 boardButtons[row][col]->setStyleSheet(
-                    "font-size: 40px; font-weight: bold; "
-                    "background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #f5f5f5, stop:1 #e0e0e0); "
-                    "border: 1px solid #bdc3c7; border-radius: 10px;"
+                    "font-family: 'Press Start 2P', monospace; font-size: 40px; font-weight: bold; "
+                    "background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #1a1a1a, stop:1 #333333); "
+                    "border: 2px solid #00ff00; border-radius: 15px; "
+                    "color: #aaaaaa;" // Dim text color
+                    "box-shadow: 0 0 8px rgba(0, 255, 0, 0.5);"
                     );
             }
         }
     }
 }
 
-// Fixed: Moved these methods outside of updateGameBoard()
 void MainWindow::displayGameResult(const QString& winner) {
     QString result;
     QString styleSheet;
 
-    if (isPlayingAI) {
-        // AI mode
-        if (winner == "X") {
-            result = QString("%1 wins!").arg(currentUsername);
-            styleSheet = "color: #3498db; font-weight: bold;"; // Blue for player X
-        } else if (winner == "O") {
-            result = "AI wins!";
-            styleSheet = "color: #e74c3c; font-weight: bold;"; // Red for AI/O
+    if (winner == "Draw") {
+        result = "IT'S A DRAW!";
+        styleSheet = "color: #ffff00; text-shadow: 0 0 5px #ffff00;"; // Neon yellow for draw
+    } else if (isPlayingAI) {
+        // AI mode: Determine if human or AI won based on playerMarkSelectedByHuman
+        if (winner.at(0).toLatin1() == playerMarkSelectedByHuman) {
+            result = QString("%1 WINS!").arg(currentUsername.toUpper());
+            styleSheet = "color: #00ffff; text-shadow: 0 0 5px #00ffff;"; // Neon blue for human player win
         } else {
-            result = "It's a draw!";
-            styleSheet = "color: #7f8c8d; font-weight: bold;"; // Grey for draw
+            result = "AI WINS!";
+            styleSheet = "color: #ff00ff; text-shadow: 0 0 5px #ff00ff;"; // Neon pink for AI win
         }
     } else {
-        // Human vs Human mode
-        if (winner == "X") {
-            result = QString("Player %1 wins!").arg(winner);
-            styleSheet = "color: #3498db; font-weight: bold;";
-        } else if (winner == "O") {
-            result = QString("Player %1 wins!").arg(winner);
-            styleSheet = "color: #e74c3c; font-weight: bold;";
+        // Human vs Human mode: Winner is currentUsername if winner's mark matches human's chosen mark, else Guest
+        if (winner.at(0).toLatin1() == playerMarkSelectedByHuman) {
+            result = QString("%1 WINS!").arg(currentUsername.toUpper());
+            styleSheet = "color: #00ffff; text-shadow: 0 0 5px #00ffff;";
         } else {
-            result = "It's a draw!";
-            styleSheet = "color: #7f8c8d; font-weight: bold;";
+            result = "GUEST WINS!"; // This implies the other human player
+            styleSheet = "color: #ff00ff; text-shadow: 0 0 5px #ff00ff;";
         }
     }
 
-    statusLabel->setText(result);
-    statusLabel->setStyleSheet(
-        "font-size: 24px; " + styleSheet +
-        "background-color: #ecf0f1; padding: 10px; "
-        "border: 1px solid #bdc3c7; border-radius: 5px;"
+    ui->statusLabel->setText(result);
+    ui->statusLabel->setStyleSheet(
+        "font-family: 'Press Start 2P', monospace; font-size: 28px; font-weight: bold; " + styleSheet +
+        "background-color: #333333; padding: 10px; "
+        "border: 2px solid #ff00ff; border-radius: 8px;"
         );
 
     // Disable all board buttons
@@ -520,80 +552,163 @@ void MainWindow::displayGameResult(const QString& winner) {
     }
 
     QMessageBox msgBox;
-    msgBox.setWindowTitle("Game Over");
+    msgBox.setWindowTitle("GAME OVER!");
     msgBox.setText(result);
     msgBox.setStyleSheet(
-        "QMessageBox { background-color: #ecf0f1; }"
-        "QMessageBox QLabel { font-size: 16px; " + styleSheet + " }"
+        "QMessageBox { background-color: #1a1a1a; border: 2px solid #00ff00; border-radius: 10px; }"
+        "QMessageBox QLabel { font-family: 'Press Start 2P', monospace; font-size: 20px; " + styleSheet + " }"
                        "QMessageBox QPushButton { "
-                       "   background-color: #3498db; color: white; "
-                       "   padding: 6px 12px; border-radius: 4px; "
-                       "   font-weight: bold; min-width: 80px; "
+                       "   background-color: #8a2be2; color: white; "
+                       "   padding: 8px 16px; border-radius: 6px; "
+                       "   font-family: 'Press Start 2P', monospace; font-weight: bold; min-width: 80px; "
+                       "   border: 2px solid #ff00ff; box-shadow: 0 0 8px rgba(255, 0, 255, 0.7);"
                        "}"
-                       "QMessageBox QPushButton:hover { background-color: #2980b9; }"
+                       "QMessageBox QPushButton:hover { background-color: #6a0dad; box-shadow: 0 0 12px rgba(255, 0, 255, 1); }"
         );
     msgBox.exec();
 }
 
 void MainWindow::saveGameToHistory(const QString& winner) {
     QString result;
-    QString opponent = isPlayingAI ? "AI" : "Human";
+    QString opponentString;
 
+    // Determine opponent string based on game mode and difficulty
     if (isPlayingAI) {
-        // AI mode
-        if (winner == "X") {
-            result = QString("%1 won").arg(currentUsername);
-        } else if (winner == "O") {
-            result = "AI won";
-        } else {
-            result = "Draw";
+        opponentString = "AI -- ";
+        switch (currentDifficulty) {
+        case AIDifficulty::EASY: opponentString += "Easy Mode"; break;
+        case AIDifficulty::MEDIUM: opponentString += "Medium Mode"; break;
+        case AIDifficulty::HARD: opponentString += "Hard Mode"; break;
+        case AIDifficulty::IMPOSSIBLE: opponentString += "Impossible Mode"; break;
+        default: opponentString += "Unknown Mode"; break; // Fallback
         }
     } else {
-        // Human vs Human mode
-        if (winner == "X") {
+        opponentString = "Human";
+    }
+
+
+    if (winner == "Draw") {
+        result = "Draw";
+    } else if (isPlayingAI) {
+        // AI mode: If winner mark is human's chosen mark, human won. Else AI won.
+        if (winner.at(0).toLatin1() == playerMarkSelectedByHuman) {
             result = QString("%1 won").arg(currentUsername);
-        } else if (winner == "O") {
-            result = "Guest won";
         } else {
-            result = "Draw";
+            result = "AI won";
+        }
+    } else {
+        // Human vs Human mode: If winner mark is human's chosen mark, current user won. Else Guest won.
+        if (winner.at(0).toLatin1() == playerMarkSelectedByHuman) {
+            result = QString("%1 won").arg(currentUsername);
+        } else {
+            result = "Guest won";
         }
     }
 
-    game.saveGame(currentUsername.toStdString(), result.toStdString(), opponent.toStdString());
+    game.saveGame(currentUsername.toStdString(), result.toStdString(), opponentString.toStdString());
     historyModel->loadHistory(currentUsername);
 }
 
-void MainWindow::resetBoard() {
-    game = Game(); // Create a new game instance
+// Modified resetBoard to accept a starting player character (human's choice)
+void MainWindow::resetBoard(char startingPlayer) {
+    game = Game(); // Create a new game instance; Game constructor sets currentPlayer to 'X'
+    playerMarkSelectedByHuman = startingPlayer; // Store the human's chosen mark for display/AI logic
 
     // Reset all buttons
     for (int row = 0; row < 3; row++) {
         for (int col = 0; col < 3; col++) {
             boardButtons[row][col]->setText("");
-            boardButtons[row][col]->setStyleSheet("font-size: 32px; font-weight: bold;");
-            boardButtons[row][col]->setEnabled(true);
+            boardButtons[row][col]->setStyleSheet(
+                "font-size: 40px; font-weight: bold; "
+                "background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #1a1a1a, stop:1 #333333); "
+                "border: 2px solid #00ff00; border-radius: 15px; "
+                "color: #aaaaaa;"
+                );
+            boardButtons[row][col]->setEnabled(true); // Ensure buttons are enabled at the start of a new game
         }
     }
 
-    statusLabel->setText("Player X's turn");
+    // Always clear difficulty label at the start of a new game, it will be set if AI is playing
+    ui->difficultyLabel->setText("");
 
-    // If playing AI, set the difficulty
+
+    // Handle initial turn and status label based on game mode and human's choice
     if (isPlayingAI) {
-        game.setAIDifficulty(currentDifficulty);
+        // If playing AI, first show difficulty selector
+        showDifficultySelector(); // This will block until user selects difficulty
+            // currentDifficulty and game.aiDifficulty will be updated here.
+
+        if (playerMarkSelectedByHuman == 'O') {
+            // Human chose 'O', so AI (playing as 'X' since game always starts with 'X') should make the first move.
+            ui->statusLabel->setText("AI (X)'s turn");
+            ui->statusLabel->setStyleSheet(
+                "font-family: 'Press Start 2P', monospace; font-size: 28px; font-weight: bold; color: #ff00ff; " // Neon pink for AI's turn
+                "background-color: #333333; padding: 10px; "
+                "border: 2px solid #ff00ff; border-radius: 8px; text-shadow: 0 0 5px #ff00ff;"
+                );
+            // Disable board buttons until AI makes its move to prevent quick human input
+            for (int r = 0; r < 3; r++) {
+                for (int c = 0; c < 3; c++) {
+                    boardButtons[r][c]->setEnabled(false);
+                }
+            }
+            // Trigger AI's first move AFTER difficulty has been set
+            QTimer::singleShot(500, this, &MainWindow::processAIMove);
+        } else {
+            // Human chose 'X', human starts.
+            ui->statusLabel->setText(QString("Player X's turn")); // Visually, it's X's turn to start
+            ui->statusLabel->setStyleSheet(
+                "font-family: 'Press Start 2P', monospace; font-size: 28px; font-weight: bold; color: #ffff00; " // Neon yellow
+                "background-color: #333333; padding: 10px; "
+                "border: 2px solid #ff00ff; border-radius: 8px; text-shadow: 0 0 5px #ffff00;"
+                );
+            // Buttons are already enabled by the initial loop
+        }
+    } else { // Playing Human vs Human
+        ui->statusLabel->setText(QString("Player X's turn")); // Human vs Human always starts with X
+        ui->statusLabel->setStyleSheet(
+            "font-family: 'Press Start 2P', monospace; font-size: 28px; font-weight: bold; color: #ffff00; " // Neon yellow
+            "background-color: #333333; padding: 10px; "
+            "border: 2px solid #ff00ff; border-radius: 8px; text-shadow: 0 0 5px #ffff00;"
+            );
+        // Buttons are already enabled by the initial loop
     }
 }
 
 void MainWindow::showDifficultySelector() {
-    DifficultyDialog dialog(this);
+    DifficultyDialog dialog(this); // Instantiates the UI-based dialog
     if (dialog.exec() == QDialog::Accepted) {
         currentDifficulty = dialog.getSelectedDifficulty();
         game.setAIDifficulty(currentDifficulty);
+        updateDifficultyLabel(); // Update the label after setting difficulty
+    } else {
+        // If difficulty dialog is cancelled, it means the user doesn't want to play AI.
+        // We should revert to the login screen or a neutral state.
+        // For simplicity, let's go back to the login screen if difficulty selection is cancelled.
+        // You might want a more graceful handling, e.g., back to game mode selection.
+        if (!user.isUserLoggedIn()) { // If not logged in, always revert to login
+            stackedWidget->setCurrentWidget(loginWidget);
+        } else { // If logged in, revert to game screen without starting a game
+            ui->statusLabel->setText("AI game cancelled. Choose 'Game' to begin a new match.");
+            ui->statusLabel->setStyleSheet(
+                "font-family: 'Press Start 2P', monospace; font-size: 28px; font-weight: bold; color: #ffff00; "
+                "background-color: #333333; padding: 10px; "
+                "border: 2px solid #ff00ff; border-radius: 8px; text-shadow: 0 0 5px #ffff00;"
+                );
+            for (int r = 0; r < 3; r++) {
+                for (int c = 0; c < 3; c++) {
+                    boardButtons[r][c]->setEnabled(false); // Ensure board is disabled if game isn't started
+                }
+            }
+        }
+        isPlayingAI = false; // If player choice is cancelled, ensure AI mode is off
+        ui->difficultyLabel->setText(""); // Also clear difficulty label
     }
 }
 
 void MainWindow::updateDifficultyLabel() {
     if (!isPlayingAI) {
-        difficultyLabel->setText("");
+        ui->difficultyLabel->setText(""); // Ensure it's cleared if not AI game
         return;
     }
 
@@ -602,27 +717,65 @@ void MainWindow::updateDifficultyLabel() {
 
     switch (currentDifficulty) {
     case AIDifficulty::EASY:
-        difficultyText = "AI Difficulty: Easy";
-        colorStyle = "color: #27ae60;"; // Green for easy
+        difficultyText = "AI DIFFICULTY: EASY";
+        colorStyle = "#00ff00"; // Neon Green
         break;
     case AIDifficulty::MEDIUM:
-        difficultyText = "AI Difficulty: Medium";
-        colorStyle = "color: #f39c12;"; // Orange for medium
+        difficultyText = "AI DIFFICULTY: MEDIUM";
+        colorStyle = "#ffff00"; // Neon Yellow
         break;
     case AIDifficulty::HARD:
-        difficultyText = "AI Difficulty: Hard";
-        colorStyle = "color: #e74c3c;"; // Red for hard
+        difficultyText = "AI DIFFICULTY: HARD";
+        colorStyle = "#ff00ff"; // Neon Pink
         break;
     case AIDifficulty::IMPOSSIBLE:
-        difficultyText = "AI Difficulty: Impossible";
-        colorStyle = "color: #8e44ad;"; // Purple for impossible
+        difficultyText = "AI DIFFICULTY: IMPOSSIBLE";
+        colorStyle = "#00ffff"; // Neon Blue
         break;
     }
 
-    difficultyLabel->setText(difficultyText);
-    difficultyLabel->setStyleSheet(
-        "font-size: 16px; " + colorStyle +
-        "background-color: #ecf0f1; padding: 5px; "
-        "border: 1px solid #bdc3c7; border-radius: 5px; font-weight: bold;"
+    // Apply consistent styling with dynamic color
+    ui->difficultyLabel->setText(difficultyText);
+    ui->difficultyLabel->setStyleSheet(
+        "font-family: 'Press Start 2P', monospace; font-size: 18px; font-weight: bold; "
+        "color: " + colorStyle + "; "
+                       "background-color: #333333; padding: 10px; " // Consistent padding with statusLabel
+                       "border: 2px solid " + colorStyle + "; "
+                       "border-radius: 8px; " // Consistent border-radius with statusLabel
+                       "text-shadow: 0 0 5px " + colorStyle + ";" // Consistent text-shadow with statusLabel
         );
 }
+
+// Updated method to show the UI-based player choice dialog
+void MainWindow::showPlayerChoiceSelector() {
+    PlayerChoiceDialog dialog(this); // Now instantiates the UI-based dialog
+    if (dialog.exec() == QDialog::Accepted) {
+        char chosenPlayer = dialog.getSelectedPlayer();
+        resetBoard(chosenPlayer); // Pass the chosen player to resetBoard
+    } else {
+        // If the user cancels the player choice, handle the state.
+        // For example, if not logged in, go back to login screen.
+        if (!user.isUserLoggedIn()) {
+            stackedWidget->setCurrentWidget(loginWidget);
+        } else {
+            // If logged in and cancelled, perhaps just remain on game screen without starting new game
+            ui->statusLabel->setText("Game not started. Choose 'Game' to begin.");
+            // Reapply default status label style
+            ui->statusLabel->setStyleSheet(
+                "font-family: 'Press Start 2P', monospace; font-size: 28px; font-weight: bold; color: #ffff00; " // Neon yellow
+                "background-color: #333333; padding: 10px; "
+                "border: 2px solid #ff00ff; border-radius: 8px; text-shadow: 0 0 5px #ffff00;"
+                );
+            // Also ensure the board buttons are enabled for a potential new game start if they were disabled before
+            for (int r = 0; r < 3; r++) {
+                for (int c = 0; c < 3; c++) {
+                    boardButtons[r][c]->setEnabled(true);
+                }
+            }
+        }
+        isPlayingAI = false; // If player choice is cancelled, ensure AI mode is off
+        ui->difficultyLabel->setText(""); // Also clear difficulty label
+    }
+}
+
+

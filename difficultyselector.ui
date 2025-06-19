@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>DifficultyDialog</class>
+ <widget class="QDialog" name="DifficultyDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>350</width>
+    <height>200</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Select AI Difficulty</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="leftMargin">
+    <number>20</number>
+   </property>
+   <property name="topMargin">
+    <number>20</number>
+   </property>
+   <property name="rightMargin">
+    <number>20</number>
+   </property>
+   <property name="bottomMargin">
+    <number>20</number>
+   </property>
+   <property name="spacing">
+    <number>15</number>
+   </property>
+   <item>
+    <widget class="QLabel" name="label_difficulty">
+     <property name="font">
+      <font>
+       <family>Press Start 2P</family>
+       <pointsize>18</pointsize>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: #00ffff; padding: 5px; text-shadow: 0 0 5px #00ffff;</string>
+     </property>
+     <property name="text">
+      <string>Select AI Difficulty Level:</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QComboBox" name="difficultyComboBox">
+     <property name="font">
+      <font>
+       <family>Press Start 2P</family>
+       <pointsize>16</pointsize>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QComboBox { 
+	font-family: 'Press Start 2P', monospace; font-size: 16px; padding: 8px; border: 2px solid #ff00ff; 
+	border-radius: 5px; background-color: #333333; color: #00ff00; selection-background-color: #8a2be2; min-width: 200px; 
+	text-shadow: 0 0 3px #00ff00; 
+}
+QComboBox::drop-down { border: 0px; }
+QComboBox::down-arrow { image: url(:/icons/arrow_down.png); }</string>
+     </property>
+     <item>
+      <property name="text">
+       <string>Easy</string>
+      </property>
+      <property name="icon">
+       <iconset>
+        <normaloff/>
+       </iconset>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Medium</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Hard</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Impossible</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>DifficultyDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>DifficultyDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
+
