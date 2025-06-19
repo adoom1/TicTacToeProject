@@ -33,6 +33,10 @@ jobs:
           # Ensure submodules are also checked out if your project uses them
           submodules: 'recursive'
 
+      # NEW STEP: List files to debug directory structure
+      - name: Debug: List workspace contents
+        run: ls -R $GITHUB_WORKSPACE
+
       # Step 2: Set up the Qt environment.
       # This action automatically installs a specified version of Qt.
       # We'll use Qt 6.6.3, which is a stable and commonly available version.
@@ -57,7 +61,7 @@ jobs:
       # qmake generates the Makefile for your project.
       # The 'working-directory' is relative to the root of the repository after checkout.
       - name: Run qmake
-        working-directory: adoom1/tictactoeproject/TicTacToeProject-ee5ec987881872db791c6480046e52299aeb907f # Corrected path
+        working-directory: adoom1/tictactoeproject/TicTacToeProject-ee5ec987881872db791c6480046e52299aeb907f # Check this path based on the 'ls -R' output
         run: qmake TicTacToe1.pro # Use the correct project file name
 
       # Step 5: Build the project using make.
