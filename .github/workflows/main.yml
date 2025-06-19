@@ -35,14 +35,15 @@ jobs:
 
       # Step 2: Set up the Qt environment.
       # This action automatically installs a specified version of Qt.
+      # We'll use Qt 6.6.3, which is a stable and commonly available version.
       - name: Setup Qt
         uses: jurplel/install-qt-action@v3
         with:
-          version: '6.6.3' # Changed to a specific, stable Qt 6 version
+          version: '6.6.3' # IMPORTANT: Ensure this is '6.6.3' as discussed
           aqtversion: '==3.1.*'
           host: 'linux'
           target: 'desktop'
-          arch: 'gcc_64'
+          arch: 'gcc_64' # Assuming you're building for a 64-bit GCC environment
 
       # Step 3: Install build dependencies.
       # Essential tools like build-essential (g++, make) and libsqlite3-dev for SQLite.
@@ -54,13 +55,17 @@ jobs:
 
       # Step 4: Configure the Qt project using qmake.
       # qmake generates the Makefile for your project.
+      # We now specify the correct working directory and project file name.
       - name: Run qmake
-        run: qmake TicTacToeProject.pro # Assuming your main project file is TicTacToeProject.pro
+        working-directory: ./TicTacToeProject-12e724028cb5f5dd670b7bb1447547c16c2fe3eb # Navigate to the project subdirectory
+        run: qmake TicTacToe1.pro # Use the correct project file name
 
       # Step 5: Build the project using make.
       # 'make' compiles your source code into executables.
       # The '-j$(nproc)' flag uses all available processor cores for faster compilation.
+      # We keep the same working directory for the build.
       - name: Build project
+        working-directory: ./TicTacToeProject-12e724028cb5f5dd670b7bb1447547c16c2fe3eb # Keep the same working directory
         run: make -j$(nproc)
 
       # Step 6: (Optional, but highly recommended for CI) Run Tests.
@@ -68,6 +73,7 @@ jobs:
       # For now, we'll comment this out as your team is handling testing.
       # When they create the test executable, you can uncomment this.
       # - name: Run tests
+      #   working-directory: ./TicTacToeProject-12e724028cb5f5dd670b7bb1447547c16c2fe3eb/release # Assuming tests are built into release
       #   run: ./TicTacToeTests # Adjust path if your test executable is in a subdirectory
 
       # Step 7: Upload build artifacts.
@@ -78,10 +84,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: TicTacToe-Linux-Build
-          # Path to your compiled executable relative to the root of your repository
-          # Adjust this path based on where 'make' places the executable.
-          # Common paths are 'release/' or 'debug/' or directly in the build directory.
-          path: TicTacToeProject # Assuming your executable is named TicTacToeProject
-          # If your executable is in a build subdirectory (e.g., in a 'release' folder created by qmake)
-          # you might need 'path: release/TicTacToeProject' or 'build/release/TicTacToeProject'.
-          # You'll need to verify this path after a local build.
+          # The path is now relative to the root of the GITHUB_WORKSPACE,
+          # pointing to the release directory within your project folder
+          path: TicTacToeProject-12e724028cb5f5dd670b7bb1447547c16c2fe3eb/release/TicTacToe1 # Adjust for correct project name and build location
