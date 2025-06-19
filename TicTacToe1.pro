@@ -42,3 +42,8 @@ LIBS += -lgdi32 -lws2_32 -lcrypt32 -lmsvcrt
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+DISTFILES += \
+    appicon.rc
+
+RC_FILE = appicon.rc

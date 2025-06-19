@@ -1,0 +1,15 @@
+debug/BoardStateDelegate.o
+debug/DBManager.o
+debug/Game.o
+debug/GameHistoryModel.o
+debug/User.o
+debug/difficultyselector.o
+debug/main.o
+debug/mainwindow.o
+debug/sqlite3.o
+debug/playerchoicedialog.o
+debug/moc_BoardStateDelegate.o
+debug/moc_GameHistoryModel.o
+debug/moc_difficultyselector.o
+debug/moc_mainwindow.o
+debug/moc_playerchoicedialog.o
