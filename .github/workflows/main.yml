@@ -39,7 +39,7 @@ jobs:
       - name: Setup Qt
         uses: jurplel/install-qt-action@v3
         with:
-          version: '6.6.3' # IMPORTANT: Ensure this is '6.6.3' as discussed
+          version: '6.6.3' # IMPORTANT: Ensure this is '6.6.3'
           aqtversion: '==3.1.*'
           host: 'linux'
           target: 'desktop'
@@ -57,7 +57,7 @@ jobs:
       # qmake generates the Makefile for your project.
       # We now specify the correct working directory and project file name.
       - name: Run qmake
-        working-directory: ./TicTacToeProject-12e724028cb5f5dd670b7bb1447547c16c2fe3eb # Navigate to the project subdirectory
+        working-directory: TicTacToeProject-12e724028cb5f5dd670b7bb1447547c16c2fe3eb # Removed leading './'
         run: qmake TicTacToe1.pro # Use the correct project file name
 
       # Step 5: Build the project using make.
@@ -65,7 +65,7 @@ jobs:
       # The '-j$(nproc)' flag uses all available processor cores for faster compilation.
       # We keep the same working directory for the build.
       - name: Build project
-        working-directory: ./TicTacToeProject-12e724028cb5f5dd670b7bb1447547c16c2fe3eb # Keep the same working directory
+        working-directory: TicTacToeProject-12e724028cb5f5dd670b7bb1447547c16c2fe3eb # Removed leading './'
         run: make -j$(nproc)
 
       # Step 6: (Optional, but highly recommended for CI) Run Tests.
