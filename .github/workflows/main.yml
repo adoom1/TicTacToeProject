@@ -35,16 +35,14 @@ jobs:
 
       # Step 2: Set up the Qt environment.
       # This action automatically installs a specified version of Qt.
-      # We'll use Qt 6.x.x, assuming your project is compatible.
-      # If you're using a specific Qt version (e.g., 6.5.0), you can change '6.x' to '6.5.0'.
       - name: Setup Qt
         uses: jurplel/install-qt-action@v3
         with:
-          version: '6.9.0' # Or a specific version like '6.5.0'
-          aqtversion: '==3.1.*' # Specify a compatible aqtinstall version
+          version: '6.6.3' # Changed to a specific, stable Qt 6 version
+          aqtversion: '==3.1.*'
           host: 'linux'
           target: 'desktop'
-          arch: 'gcc_64' # Assuming you're building for a 64-bit GCC environment
+          arch: 'gcc_64'
 
       # Step 3: Install build dependencies.
       # Essential tools like build-essential (g++, make) and libsqlite3-dev for SQLite.
