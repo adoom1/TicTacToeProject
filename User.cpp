@@ -4,7 +4,7 @@
 #include <openssl/evp.h> // Use EVP instead of SHA
 #include <sstream>
 #include <iomanip>
-
+#include <QMessagebox>
 User::User() : isLoggedIn(false) {
 }
 
@@ -80,7 +80,9 @@ bool User::signup(const std::string& username, const std::string& password) {
 
     // Check if username already exists
     if (DBManager::getInstance().usernameExists(username)) {
-        std::cerr << "Username already exists!" << std::endl;
+        QMessageBox::warning(nullptr, "Sign Up Error", "Username already exists!");
+        std::cout << "" << std::endl;
+
         return false;
     }
 
