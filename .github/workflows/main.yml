@@ -63,7 +63,7 @@ jobs:
       # qmake generates the Makefile for your project.
       # The 'working-directory' is relative to the root of the repository after checkout.
       - name: Run qmake
-        working-directory: adoom1/tictactoeproject/TicTacToeProject-ee5ec987881872db791c6480046e52299aeb907    # Check this path based on the 'ls -R' output
+        working-directory: .    # Check this path based on the 'ls -R' output
         run: qmake TicTacToe1.pro # Use the correct project file name
 
       # Step 5: Build the project using make.
@@ -71,7 +71,7 @@ jobs:
       # The '-j$(nproc)' flag uses all available processor cores for faster compilation.
       # We keep the same working directory for the build.
       - name: Build project
-        working-directory: adoom1/tictactoeproject/TicTacToeProject-ee5ec987881872db791c6480046e52299aeb907f     # Keep the same working directory
+        working-directory: .     # Keep the same working directory
         run: make -j$(nproc)
 
       # Step 6: (Optional, but highly recommended for CI) Run Tests.
@@ -91,4 +91,4 @@ jobs:
         with:
           name: TicTacToe-Linux-Build
           # The path is now relative to the root of the GITHUB_WORKSPACE (where 'actions/checkout' puts the repo)
-          path: adoom1/tictactoeproject/TicTacToeProject-ee5ec987881872db791c6480046e52299aeb907f/release/TicTacToe1 # Adjust for correct project name and build location
+          path: TicTacToeProject/release/TicTacToe1 # Adjust for correct project name and build location
