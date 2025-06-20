@@ -5,6 +5,8 @@
 #include <string>
 #include <chrono>
 
+using namespace std; // Added: using namespace std
+
 // Define AI difficulty levels
 enum class AIDifficulty {
     EASY,
@@ -16,7 +18,7 @@ enum class AIDifficulty {
 struct TreeNode {
     char board[3][3];
     char player; // 'X' or 'O'
-    std::vector<TreeNode*> children;
+    vector<TreeNode*> children;
     int score;
 
     TreeNode(char b[3][3], char p) {
@@ -29,32 +31,32 @@ struct TreeNode {
 };
 
 struct GameRecord {
-    std::string username;
-    std::string result;
-    std::string opponent; // "AI" or "Human"
-    std::string date;
-    std::string boardState;
+    string username;
+    string result;
+    string opponent; // "AI" or "Human"
+    string date;
+    string boardState;
 
-    GameRecord(const std::string& u, const std::string& r, const std::string& o)
+    GameRecord(const string& u, const string& r, const string& o)
         : username(u), result(r), opponent(o) {
-        auto now = std::chrono::system_clock::now();
-        auto now_time = std::chrono::system_clock::to_time_t(now);
-        date = std::ctime(&now_time);
+        auto now = chrono::system_clock::now();
+        auto now_time = chrono::system_clock::to_time_t(now);
+        date = ctime(&now_time);
     }
 };
 
 class Game {
 private:
-    std::vector<std::vector<char>> board;
+    vector<vector<char>> board;
     char currentPlayer; // Now always 'X' initially for a new game logic start
     int minimax(int depth, bool isMaximizing); // Existing, but not currently used for AI logic (minimaxTree is)
-    std::vector<GameRecord> gameHistory;
+    vector<GameRecord> gameHistory;
     AIDifficulty aiDifficulty;
     void makeEasyAIMove();
     void makeMediumAIMove();
     void makeHardAIMove(); // Updated logic
     bool findImminentWinOrBlock();
-
+    void deleteTree(TreeNode* node);
 
 public:
     Game(); // Constructor initializes currentPlayer to 'X'
@@ -65,8 +67,8 @@ public:
     void switchPlayer();
     char getCurrentPlayer();
     char getBoardValue(int row, int col);
-    std::string getBoardStateAsString();
- void deleteTree(TreeNode* node);
+    string getBoardStateAsString();
+
     // Set/get AI difficulty
     void setAIDifficulty(AIDifficulty difficulty);
     AIDifficulty getAIDifficulty() const;
@@ -74,14 +76,15 @@ public:
     // Game Tree AI functions
     TreeNode* buildGameTree(char b[3][3], char currentPlayer);
     int evaluateBoard(char b[3][3]);
-    int minimaxTree(TreeNode* node, bool isMaximizing); // Used by IMPOSSIBLE
+    // Changed minimaxTree signature to include alpha and beta
+    int minimaxTree(TreeNode* node, int alpha, int beta, bool isMaximizing); // Used by IMPOSSIBLE
     void makeAIMoveWithTree(); // Used by IMPOSSIBLE
     void makeAIMoveWithLimitedTree(int depthLimit); // NEW: Used by HARD
     void makeAIMove(); // New function to handle difficulty levels
 
     // Game history functions
-    void saveGame(const std::string& username, const std::string& result, const std::string& opponent);
-    std::vector<GameRecord> getGameHistory(const std::string& username);
+    void saveGame(const string& username, const string& result, const string& opponent);
+    vector<GameRecord> getGameHistory(const string& username);
 
     // Removed setStartingPlayer as Game will always start with 'X' internally.
     // The MainWindow logic will manage who moves first based on human's chosen mark.
