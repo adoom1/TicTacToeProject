@@ -8,13 +8,15 @@
 #include "DBManager.h"
 #include <QDebug> // For qWarning, if you want to use it for invalid player char
 
+using namespace std; // Added: using namespace std
+
 Game::Game() {
-    board = std::vector<std::vector<char>>(3, std::vector<char>(3, ' '));
+    board = vector<vector<char>>(3, vector<char>(3, ' '));
     // Game always starts with 'X' from the internal game logic perspective.
     // The MainWindow will manage who makes the first move based on user's choice.
     currentPlayer = 'X';
     aiDifficulty = AIDifficulty::MEDIUM; // Default to medium difficulty
-    std::srand(static_cast<unsigned int>(std::time(nullptr))); // Initialize random seed
+    srand(static_cast<unsigned int>(time(nullptr))); // Initialize random seed
 }
 
 // Removed Game::setStartingPlayer as it's no longer needed.
@@ -29,17 +31,17 @@ AIDifficulty Game::getAIDifficulty() const {
 }
 
 void Game::displayBoard() {
-    std::cout << "\n";
+    cout << "\n";
     for (int i = 0; i < 3; i++) {
-        std::cout << " ";
+        cout << " ";
         for (int j = 0; j < 3; j++) {
-            std::cout << board[i][j];
-            if (j < 2) std::cout << " | ";
+            cout << board[i][j];
+            if (j < 2) cout << " | ";
         }
-        std::cout << "\n";
-        if (i < 2) std::cout << "---+---+---\n";
+        cout << "\n";
+        if (i < 2) cout << "---+---+---\n";
     }
-    std::cout << "\n";
+    cout << "\n";
 }
 
 bool Game::makeMove(int row, int col) {
@@ -97,8 +99,8 @@ char Game::getBoardValue(int row, int col) {
     return ' ';
 }
 
-std::string Game::getBoardStateAsString() {
-    std::stringstream ss;
+string Game::getBoardStateAsString() {
+    stringstream ss;
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 3; j++) {
             ss << board[i][j];
@@ -169,28 +171,38 @@ TreeNode* Game::buildGameTree(char b[3][3], char playerForNode) {
     return node;
 }
 
-int Game::minimaxTree(TreeNode* node, bool isMaximizing) {
+// Changed minimaxTree signature to include alpha and beta parameters for pruning
+int Game::minimaxTree(TreeNode* node, int alpha, int beta, bool isMaximizing) {
     // If it's a leaf node (game over), return its score
     if (node->children.empty()) return node->score;
 
-    int bestScore;
     if (isMaximizing) {
-        bestScore = -1000; // Initialize with a very low score for maximizing player
+        int bestScore = -1000; // Initialize with a very low score for maximizing player
         for (TreeNode* child : node->children) {
-            // Recursively call for opponent's turn (not maximizing)
-            bestScore = std::max(bestScore, minimaxTree(child, false));
+            // Recursively call for opponent's turn (not maximizing) with updated alpha-beta
+            bestScore = max(bestScore, minimaxTree(child, alpha, beta, false));
+            alpha = max(alpha, bestScore); // Update alpha
+            if (beta <= alpha) { // Beta cut-off
+                break; // Prune remaining branches
+            }
         }
-    } else {
-        bestScore = 1000; // Initialize with a very high score for minimizing player
+        node->score = bestScore; // Store the calculated best score for this node
+        return bestScore;
+    } else { // Minimizing player
+        int bestScore = 1000; // Initialize with a very high score for minimizing player
         for (TreeNode* child : node->children) {
-            // Recursively call for maximizing player's turn
-            bestScore = std::min(bestScore, minimaxTree(child, true));
+            // Recursively call for maximizing player's turn with updated alpha-beta
+            bestScore = min(bestScore, minimaxTree(child, alpha, beta, true));
+            beta = min(beta, bestScore); // Update beta
+            if (beta <= alpha) { // Alpha cut-off
+                break; // Prune remaining branches
+            }
         }
+        node->score = bestScore; // Store the calculated best score for this node
+        return bestScore;
     }
-
-    node->score = bestScore; // Store the calculated best score for this node
-    return bestScore;
 }
+
 
 // New function that handles AI moves with different difficulty levels
 void Game::makeAIMove() {
@@ -215,13 +227,13 @@ void Game::makeAIMove() {
 
 // Helper function for EASY difficulty - makes random moves
 void Game::makeEasyAIMove() {
-    std::vector<std::pair<int, int>> availableMoves;
+    vector<pair<int, int>> availableMoves;
 
     // Collect all available moves
     for (int i = 0; i < 3; ++i) {
         for (int j = 0; j < 3; ++j) {
             if (board[i][j] == ' ') {
-                availableMoves.push_back(std::make_pair(i, j));
+                availableMoves.push_back(make_pair(i, j));
             }
         }
     }
@@ -268,10 +280,10 @@ void Game::makeHardAIMove() {
             }
 
             // Try to take a corner if available
-            std::vector<std::pair<int, int>> corners = {{0,0}, {0,2}, {2,0}, {2,2}};
-            std::random_device rd;
-            std::mt19937 g(rd());
-            std::shuffle(corners.begin(), corners.end(), g);
+            vector<pair<int, int>> corners = {{0,0}, {0,2}, {2,0}, {2,2}};
+            random_device rd;
+            mt19937 g(rd());
+            shuffle(corners.begin(), corners.end(), g);
 
             for (const auto& corner : corners) {
                 if (board[corner.first][corner.second] == ' ') {
@@ -355,9 +367,13 @@ void Game::makeAIMoveWithTree() {
 
     TreeNode* root = buildGameTree(tempBoard, aiPlayerMark);
 
+    // Initialize alpha and beta for the initial call
+    int alpha = -1000; // Negative infinity
+    int beta = 1000;   // Positive infinity
+
     // Pass true if AI is 'O' (maximizing), false if AI is 'X' (minimizing)
     bool isAIMaximizing = (aiPlayerMark == 'O');
-    minimaxTree(root, isAIMaximizing);
+    minimaxTree(root, alpha, beta, isAIMaximizing); // Call with alpha and beta
 
     int bestScore = isAIMaximizing ? -1000 : 1000; // Initialize based on whether AI is maximizing or minimizing
     TreeNode* bestMove = nullptr; // Pointer to the chosen best move node
@@ -402,7 +418,7 @@ void Game::deleteTree(TreeNode* node) {
     delete node; // Delete the current node after its children are deleted
 }
 
-void Game::saveGame(const std::string& username, const std::string& result, const std::string& opponent) {
+void Game::saveGame(const string& username, const string& result, const string& opponent) {
     GameRecord record(username, result, opponent);
     record.boardState = getBoardStateAsString();
 
@@ -410,6 +426,6 @@ void Game::saveGame(const std::string& username, const std::string& result, cons
     DBManager::getInstance().saveGameRecord(record);
 }
 
-std::vector<GameRecord> Game::getGameHistory(const std::string& username) {
+vector<GameRecord> Game::getGameHistory(const string& username) {
     return DBManager::getInstance().getGameRecords(username);
 }
