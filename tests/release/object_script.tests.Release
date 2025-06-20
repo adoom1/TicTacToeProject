@@ -1,0 +1,15 @@
+release/BoardStateDelegate.o
+release/DBManager.o
+release/Game.o
+release/GameHistoryModel.o
+release/User.o
+release/difficultyselector.o
+release/mainwindow.o
+release/playerchoicedialog.o
+release/sqlite3.o
+release/test_game.o
+release/moc_BoardStateDelegate.o
+release/moc_GameHistoryModel.o
+release/moc_difficultyselector.o
+release/moc_mainwindow.o
+release/moc_playerchoicedialog.o
