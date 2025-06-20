@@ -16,6 +16,7 @@ SOURCES += \
     difficultyselector.cpp \
     main.cpp \
     mainwindow.cpp \
+    D:/sqlite/sqlite3.c \
     playerchoicedialog.cpp
 
 HEADERS += \
@@ -28,31 +29,21 @@ HEADERS += \
     mainwindow.h \
     playerchoicedialog.h
 
-FORMS += \
-    mainwindow.ui \
-    difficultyselector.ui \
-    playerchoicedialog.ui
+INCLUDEPATH += D:/sqlite
+INCLUDEPATH += C:/msys64/mingw64/include
 
-# Link against system SQLite and OpenSSL libraries (cross-platform)
-LIBS += -lsqlite3 -lcrypto
+FORMS += mainwindow.ui \
+    difficultyselector.ui
+FORMS += playerchoicedialog.ui
 
-# Optional: Add extra system include paths (for external headers, if any)
-# INCLUDEPATH += some/extra/include/path
+LIBS += -L"C:/msys64/mingw64/lib" -lcrypto
+LIBS += -lgdi32 -lws2_32 -lcrypt32 -lmsvcrt
 
-# Platform-specific additions (for Windows builds only)
-win32 {
-    # Windows-specific includes/libs if needed
-    INCLUDEPATH += D:/sqlite
-    INCLUDEPATH += C:/msys64/mingw64/include
-    LIBS += -L"C:/msys64/mingw64/lib"
-    LIBS += -lgdi32 -lws2_32 -lcrypt32 -lmsvcrt
-}
-
-# Windows application icon
-RC_FILE = appicon.rc
-DISTFILES += appicon.rc
-
-# Install location
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+DISTFILES += \
+    appicon.rc
+
+RC_FILE = appicon.rc
