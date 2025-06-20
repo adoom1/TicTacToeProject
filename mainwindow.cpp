@@ -1,4 +1,4 @@
-#include "MainWindow.h"
+#include "mainwindow.h"
 #include "BoardStateDelegate.h" // Include the new delegate header
 #include "playerchoicedialog.h" // Include the new PlayerChoiceDialog header
 #include "difficultyselector.h" // NEW: Include the new DifficultyDialog header
