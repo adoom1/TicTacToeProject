@@ -310,7 +310,9 @@ void TestGame::testMinimaxTree()
     };
 
     TreeNode* root = game->buildGameTree(board, 'X');
-    int score = game->minimaxTree(root, false); // X is minimizing
+int alpha = -1000;
+    int beta = 1000;
+    int score = game->minimaxTree(root,alpha,beta,false); // X is minimizing
 
     QVERIFY(score <= 1 && score >= -1); // Valid minimax score
 

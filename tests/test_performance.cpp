@@ -144,7 +144,9 @@ void TestPerformance::benchmarkMinimaxCalculation()
     
     QBENCHMARK {
         TreeNode* root = game->buildGameTree(testBoard, 'X');
-        game->minimaxTree(root, false);
+int alpha = -1000;
+        int beta = 1000;
+        game->minimaxTree(root,alpha,beta,false);
         game->deleteTree(root);
     }
     
@@ -247,7 +249,9 @@ void TestPerformance::benchmarkMemoryLeakTest()
             g->setAIDifficulty(AIDifficulty::IMPOSSIBLE);
             char board[3][3] = {{'X', ' ', ' '}, {' ', 'O', ' '}, {' ', ' ', ' '}};
             TreeNode* root = g->buildGameTree(board, 'X');
-            g->minimaxTree(root, false);
+int alpha = -1000;
+            int beta = 1000;
+            g->minimaxTree(root,alpha,beta,false);
             g->deleteTree(root);
         }
         
@@ -388,7 +392,9 @@ void TestPerformance::performanceCPUIntensiveTest()
         };
         
         TreeNode* root = game->buildGameTree(board, 'X');
-        game->minimaxTree(root, false);
+int alpha = -1000;
+        int beta = 1000;
+        game->minimaxTree(root,alpha,beta,false);
         game->deleteTree(root);
         
         if (i % 20 == 0) {
@@ -464,7 +470,9 @@ void TestPerformance::compareAlgorithmEfficiency()
         
         for (int i = 0; i < iterations; i++) {
             TreeNode* root = game->buildGameTree(scenarios[s], 'X');
-            game->minimaxTree(root, false);
+int alpha = -1000;
+            int beta = 1000;
+            game->minimaxTree(root,alpha,beta,false);
             game->deleteTree(root);
         }
         
