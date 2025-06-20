@@ -33,22 +33,26 @@ FORMS += \
     difficultyselector.ui \
     playerchoicedialog.ui
 
-# Use SQLite system library
-LIBS += -lsqlite3
+# Link against system SQLite and OpenSSL libraries (cross-platform)
+LIBS += -lsqlite3 -lcrypto
 
-# Platform-specific libraries
+# Optional: Add extra system include paths (for external headers, if any)
+# INCLUDEPATH += some/extra/include/path
+
+# Platform-specific additions (for Windows builds only)
 win32 {
+    # Windows-specific includes/libs if needed
     INCLUDEPATH += D:/sqlite
     INCLUDEPATH += C:/msys64/mingw64/include
-    LIBS += -L"C:/msys64/mingw64/lib" -lcrypto
+    LIBS += -L"C:/msys64/mingw64/lib"
     LIBS += -lgdi32 -lws2_32 -lcrypt32 -lmsvcrt
 }
 
-# Resource file (Windows icons)
+# Windows application icon
 RC_FILE = appicon.rc
 DISTFILES += appicon.rc
 
-# Installation path
+# Install location
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
