@@ -54,7 +54,7 @@ private:
     void makeMediumAIMove();
     void makeHardAIMove(); // Updated logic
     bool findImminentWinOrBlock();
-    void deleteTree(TreeNode* node);
+
 
 public:
     Game(); // Constructor initializes currentPlayer to 'X'
@@ -66,7 +66,7 @@ public:
     char getCurrentPlayer();
     char getBoardValue(int row, int col);
     std::string getBoardStateAsString();
-
+ void deleteTree(TreeNode* node);
     // Set/get AI difficulty
     void setAIDifficulty(AIDifficulty difficulty);
     AIDifficulty getAIDifficulty() const;
