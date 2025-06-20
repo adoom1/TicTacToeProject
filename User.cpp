@@ -4,7 +4,7 @@
 #include <openssl/evp.h> // Use EVP instead of SHA
 #include <sstream>
 #include <iomanip>
-#include <QMessagebox>
+#include <QMessageBox>
 User::User() : isLoggedIn(false) {
 }
 
