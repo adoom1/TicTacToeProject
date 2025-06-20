@@ -31,6 +31,7 @@ SOURCES += \
     test_dbmanager.cpp \
     test_game.cpp \
     test_gamehistory.cpp \
+    test_performance.cpp \
     test_user.cpp
 
 # Header files from your main project
@@ -49,6 +50,7 @@ HEADERS += \
     test_dbmanager.h \
     test_game.h \
     test_gamehistory.h \
+    test_performance.h \
     test_user.h
 
 # UI files from your main project

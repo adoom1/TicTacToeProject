@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 16.0.1, 2025-06-20T15:48:33. -->
+<!-- Written by QtCreator 16.0.1, 2025-06-20T16:01:37. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -72,11 +72,60 @@
    </valuemap>
    <value type="bool" key="AutoTest.ApplyFilter">false</value>
    <valuemap type="QVariantMap" key="AutoTest.CheckStates">
+    <value type="Qt::CheckState" key="1@:Qt Test">Unchecked</value>
+    <value type="Qt::CheckState" key="1@C:/Users/DELL/Documents/GitHub/TicTacToeProject/tests/test_game.cpp:diagonal_anti">Unchecked</value>
+    <value type="Qt::CheckState" key="1@C:/Users/DELL/Documents/GitHub/TicTacToeProject/tests/test_game.cpp:diagonal_main">Unchecked</value>
+    <value type="Qt::CheckState" key="1@C:/Users/DELL/Documents/GitHub/TicTacToeProject/tests/test_game.cpp:horizontal_bottom">Unchecked</value>
+    <value type="Qt::CheckState" key="1@C:/Users/DELL/Documents/GitHub/TicTacToeProject/tests/test_game.cpp:horizontal_middle">Unchecked</value>
+    <value type="Qt::CheckState" key="1@C:/Users/DELL/Documents/GitHub/TicTacToeProject/tests/test_game.cpp:horizontal_top">Unchecked</value>
+    <value type="Qt::CheckState" key="1@C:/Users/DELL/Documents/GitHub/TicTacToeProject/tests/test_game.cpp:no_win">Unchecked</value>
     <value type="Qt::CheckState" key="1@C:/Users/DELL/Documents/GitHub/TicTacToeProject/tests/test_game.cpp:testCheckWin_data">Unchecked</value>
+    <value type="Qt::CheckState" key="1@C:/Users/DELL/Documents/GitHub/TicTacToeProject/tests/test_game.cpp:vertical_left">Unchecked</value>
+    <value type="Qt::CheckState" key="1@C:/Users/DELL/Documents/GitHub/TicTacToeProject/tests/test_game.cpp:vertical_middle">Unchecked</value>
+    <value type="Qt::CheckState" key="1@C:/Users/DELL/Documents/GitHub/TicTacToeProject/tests/test_game.cpp:vertical_right">Unchecked</value>
+    <value type="Qt::CheckState" key="1@C:/Users/DELL/Documents/GitHub/TicTacToeProject/tests/test_game.h:TestGame">PartiallyChecked</value>
     <value type="Qt::CheckState" key="1@C:/Users/DELL/Documents/GitHub/TicTacToeProject/tests/test_game.h:cleanup">Unchecked</value>
     <value type="Qt::CheckState" key="1@C:/Users/DELL/Documents/GitHub/TicTacToeProject/tests/test_game.h:cleanupTestCase">Unchecked</value>
     <value type="Qt::CheckState" key="1@C:/Users/DELL/Documents/GitHub/TicTacToeProject/tests/test_game.h:init">Unchecked</value>
     <value type="Qt::CheckState" key="1@C:/Users/DELL/Documents/GitHub/TicTacToeProject/tests/test_game.h:initTestCase">Unchecked</value>
+    <value type="Qt::CheckState" key="1@C:/Users/DELL/Documents/GitHub/TicTacToeProject/tests/test_game.h:testAIMovesEasy">Unchecked</value>
+    <value type="Qt::CheckState" key="1@C:/Users/DELL/Documents/GitHub/TicTacToeProject/tests/test_game.h:testAIMovesHard">Unchecked</value>
+    <value type="Qt::CheckState" key="1@C:/Users/DELL/Documents/GitHub/TicTacToeProject/tests/test_game.h:testAIMovesPerfect">Unchecked</value>
+    <value type="Qt::CheckState" key="1@C:/Users/DELL/Documents/GitHub/TicTacToeProject/tests/test_game.h:testBuildGameTree">Unchecked</value>
+    <value type="Qt::CheckState" key="1@C:/Users/DELL/Documents/GitHub/TicTacToeProject/tests/test_game.h:testCheckDraw">Unchecked</value>
+    <value type="Qt::CheckState" key="1@C:/Users/DELL/Documents/GitHub/TicTacToeProject/tests/test_game.h:testCheckWin">Unchecked</value>
+    <value type="Qt::CheckState" key="1@C:/Users/DELL/Documents/GitHub/TicTacToeProject/tests/test_game.h:testEvaluateBoard">Unchecked</value>
+    <value type="Qt::CheckState" key="1@C:/Users/DELL/Documents/GitHub/TicTacToeProject/tests/test_game.h:testGetBoardStateAsString">Unchecked</value>
+    <value type="Qt::CheckState" key="1@C:/Users/DELL/Documents/GitHub/TicTacToeProject/tests/test_game.h:testGetBoardValue">Unchecked</value>
+    <value type="Qt::CheckState" key="1@C:/Users/DELL/Documents/GitHub/TicTacToeProject/tests/test_game.h:testInitialState">Unchecked</value>
+    <value type="Qt::CheckState" key="1@C:/Users/DELL/Documents/GitHub/TicTacToeProject/tests/test_game.h:testInvalidMoves">Unchecked</value>
+    <value type="Qt::CheckState" key="1@C:/Users/DELL/Documents/GitHub/TicTacToeProject/tests/test_game.h:testMakeMove">Unchecked</value>
+    <value type="Qt::CheckState" key="1@C:/Users/DELL/Documents/GitHub/TicTacToeProject/tests/test_game.h:testMinimaxTree">Unchecked</value>
+    <value type="Qt::CheckState" key="1@C:/Users/DELL/Documents/GitHub/TicTacToeProject/tests/test_game.h:testSetAIDifficulty">Unchecked</value>
+    <value type="Qt::CheckState" key="1@C:/Users/DELL/Documents/GitHub/TicTacToeProject/tests/test_game.h:testSwitchPlayer">Unchecked</value>
+    <value type="Qt::CheckState" key="1@C:/Users/DELL/Documents/GitHub/TicTacToeProject/tests/test_performance.h:TestPerformance">Unchecked</value>
+    <value type="Qt::CheckState" key="1@C:/Users/DELL/Documents/GitHub/TicTacToeProject/tests/test_performance.h:benchmarkAIMoveEasy">Unchecked</value>
+    <value type="Qt::CheckState" key="1@C:/Users/DELL/Documents/GitHub/TicTacToeProject/tests/test_performance.h:benchmarkAIMoveHard">Unchecked</value>
+    <value type="Qt::CheckState" key="1@C:/Users/DELL/Documents/GitHub/TicTacToeProject/tests/test_performance.h:benchmarkAIMoveImpossible">Unchecked</value>
+    <value type="Qt::CheckState" key="1@C:/Users/DELL/Documents/GitHub/TicTacToeProject/tests/test_performance.h:benchmarkAIMoveMedium">Unchecked</value>
+    <value type="Qt::CheckState" key="1@C:/Users/DELL/Documents/GitHub/TicTacToeProject/tests/test_performance.h:benchmarkBoardEvaluation">Unchecked</value>
+    <value type="Qt::CheckState" key="1@C:/Users/DELL/Documents/GitHub/TicTacToeProject/tests/test_performance.h:benchmarkBoardEvaluationBatch">Unchecked</value>
+    <value type="Qt::CheckState" key="1@C:/Users/DELL/Documents/GitHub/TicTacToeProject/tests/test_performance.h:benchmarkConcurrentGames">Unchecked</value>
+    <value type="Qt::CheckState" key="1@C:/Users/DELL/Documents/GitHub/TicTacToeProject/tests/test_performance.h:benchmarkFullGameSimulation">Unchecked</value>
+    <value type="Qt::CheckState" key="1@C:/Users/DELL/Documents/GitHub/TicTacToeProject/tests/test_performance.h:benchmarkGameTreeBuilding">Unchecked</value>
+    <value type="Qt::CheckState" key="1@C:/Users/DELL/Documents/GitHub/TicTacToeProject/tests/test_performance.h:benchmarkMemoryLeakTest">Unchecked</value>
+    <value type="Qt::CheckState" key="1@C:/Users/DELL/Documents/GitHub/TicTacToeProject/tests/test_performance.h:benchmarkMemoryUsage">Unchecked</value>
+    <value type="Qt::CheckState" key="1@C:/Users/DELL/Documents/GitHub/TicTacToeProject/tests/test_performance.h:benchmarkMinimaxCalculation">Unchecked</value>
+    <value type="Qt::CheckState" key="1@C:/Users/DELL/Documents/GitHub/TicTacToeProject/tests/test_performance.h:benchmarkMultipleGameSimulations">Unchecked</value>
+    <value type="Qt::CheckState" key="1@C:/Users/DELL/Documents/GitHub/TicTacToeProject/tests/test_performance.h:cleanup">Unchecked</value>
+    <value type="Qt::CheckState" key="1@C:/Users/DELL/Documents/GitHub/TicTacToeProject/tests/test_performance.h:cleanupTestCase">Unchecked</value>
+    <value type="Qt::CheckState" key="1@C:/Users/DELL/Documents/GitHub/TicTacToeProject/tests/test_performance.h:compareAIDifficultyPerformance">Unchecked</value>
+    <value type="Qt::CheckState" key="1@C:/Users/DELL/Documents/GitHub/TicTacToeProject/tests/test_performance.h:compareAlgorithmEfficiency">Unchecked</value>
+    <value type="Qt::CheckState" key="1@C:/Users/DELL/Documents/GitHub/TicTacToeProject/tests/test_performance.h:init">Unchecked</value>
+    <value type="Qt::CheckState" key="1@C:/Users/DELL/Documents/GitHub/TicTacToeProject/tests/test_performance.h:initTestCase">Unchecked</value>
+    <value type="Qt::CheckState" key="1@C:/Users/DELL/Documents/GitHub/TicTacToeProject/tests/test_performance.h:performanceCPUIntensiveTest">Unchecked</value>
+    <value type="Qt::CheckState" key="1@C:/Users/DELL/Documents/GitHub/TicTacToeProject/tests/test_performance.h:performanceScalabilityTest">Unchecked</value>
+    <value type="Qt::CheckState" key="1@C:/Users/DELL/Documents/GitHub/TicTacToeProject/tests/test_performance.h:performanceStressTest">Unchecked</value>
    </valuemap>
    <valuelist type="QVariantList" key="AutoTest.PathFilters"/>
    <value type="int" key="AutoTest.RunAfterBuild">0</value>

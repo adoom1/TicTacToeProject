@@ -1,6 +1,6 @@
 #include <QtTest>
 #include <QApplication>
-
+#include "test_performance.h"
 
 #include "test_game.h"
 #include "test_gamehistory.h"
@@ -13,16 +13,16 @@ int main(int argc, char *argv[])
     int status = 0;
 
     // Run Performance test
-    //{
-        //qDebug() << "\n--- Running Performance Tests ---";
-        //TestPerformance performanceTest;
-        //status |= QTest::qExec(&performanceTest, argc, argv);
-    //}
-    //Run game test
-      {
-    TestGame gameTest;
-    status |= QTest::qExec(&gameTest, argc, argv);
+    {
+        qDebug() << "\n--- Running Performance Tests ---";
+        TestPerformance performanceTest;
+        status |= QTest::qExec(&performanceTest, argc, argv);
     }
+    //Run game test
+      //{
+    //TestGame gameTest;
+    //status |= QTest::qExec(&gameTest, argc, argv);
+    //}
     // Run User tests
 
 

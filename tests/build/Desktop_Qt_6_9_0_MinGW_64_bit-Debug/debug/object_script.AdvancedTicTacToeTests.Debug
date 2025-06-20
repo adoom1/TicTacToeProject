@@ -7,10 +7,11 @@ debug/difficultyselector.o
 debug/mainwindow.o
 debug/playerchoicedialog.o
 debug/sqlite3.o
-debug/main.o
+debug/main_test.o
 debug/test_dbmanager.o
 debug/test_game.o
 debug/test_gamehistory.o
+debug/test_performance.o
 debug/test_user.o
 debug/moc_BoardStateDelegate.o
 debug/moc_GameHistoryModel.o
@@ -20,4 +21,5 @@ debug/moc_playerchoicedialog.o
 debug/moc_test_dbmanager.o
 debug/moc_test_game.o
 debug/moc_test_gamehistory.o
+debug/moc_test_performance.o
 debug/moc_test_user.o
