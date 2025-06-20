@@ -13,7 +13,7 @@ QMAKE_CXXFLAGS += -Wno-unused -Wno-unused-but-set-variable -Wno-unused-parameter
 
 # Include paths for your main project source files
 INCLUDEPATH += ../
-INCLUDEPATH += C:/sqlite
+INCLUDEPATH += D:/sqlite
 INCLUDEPATH += "C:/msys64/mingw64/include"
 INCLUDEPATH += $$PWD/..
 # Source files from your main project
@@ -26,8 +26,8 @@ SOURCES += \
     ../difficultyselector.cpp \
     ../mainwindow.cpp \
     ../playerchoicedialog.cpp \
-    C:/sqlite/sqlite3.c \
-    main.cpp \
+    D:/sqlite/sqlite3.c \
+    main_test.cpp \
     test_dbmanager.cpp \
     test_game.cpp \
     test_gamehistory.cpp \
