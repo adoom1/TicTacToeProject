@@ -6,6 +6,8 @@
 #include <vector>
 #include "Game.h"
 
+using namespace std; // Added: using namespace std
+
 class GameHistoryModel : public QAbstractTableModel {
     Q_OBJECT
 
@@ -23,7 +25,7 @@ public:
     void addGameRecord(const QString &username, const QString &result, const QString &opponent);
 
 private:
-    std::vector<GameRecord> historyData;
+    vector<GameRecord> historyData;
     QStringList headers;
 };
 
