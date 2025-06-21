@@ -1,4 +1,3 @@
-```yaml
 # .github/workflows/main.yml
 # This workflow automates building, testing, and deploying the Tic Tac Toe game for branch merges.
 name: Tic Tac Toe CI/CD
