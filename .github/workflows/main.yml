@@ -26,7 +26,7 @@ jobs:
           submodules: recursive
 
       # Step 2: Debug workspace contents
-      - name: "Debug: List workspace contents"
+      - name: Debug: List workspace contents
         run: ls -R $GITHUB_WORKSPACE
 
       # Step 3: Set up Qt 6.6.3
@@ -34,7 +34,7 @@ jobs:
         uses: jurplel/install-qt-action@v3
         with:
           version: 6.6.3
-          aqtversion: ">=3.1,<3.2"
+          aqtversion: 3.1.2
           host: linux
           target: desktop
           arch: gcc_64
@@ -62,18 +62,23 @@ jobs:
           qmake TicTacToe1.pro CONFIG+=test
           make -j$(nproc)
 
-      # Step 8: Run Qt Tests
+      # Step 8: Debug test directory contents
+      - name: Debug: List test directory
+        working-directory: ./tests
+        run: ls -l
+
+      # Step 9: Run Qt Tests
       - name: Run tests
         working-directory: ./tests
-        run: ./test_game_logic
+        run: ./TestGameLogic
 
-      # Step 9: Package executable for CD
+      # Step 10: Package executable for CD
       - name: Package executable
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         working-directory: .
         run: tar -czvf tic-tac-toe.tar.gz TicTacToe1
 
-      # Step 10: Upload artifact for CD
+      # Step 11: Upload artifact for CD
       - name: Upload artifacts
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: actions/upload-artifact@v4
