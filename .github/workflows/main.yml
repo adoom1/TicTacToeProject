@@ -23,7 +23,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          submodules: 'recursive'
+          submodules: recursive
 
       # Step 2: Debug workspace contents
       - name: Debug: List workspace contents
@@ -33,11 +33,11 @@ jobs:
       - name: Setup Qt
         uses: jurplel/install-qt-action@v3
         with:
-          version: '6.6.3'
-          aqtversion: '==3.1.*'
-          host: 'linux'
-          target: 'desktop'
-          arch: 'gcc_64'
+          version: 6.6.3
+          aqtversion: 3.1.*
+          host: linux
+          target: desktop
+          arch: gcc_64
 
       # Step 4: Install build dependencies
       - name: Install build dependencies
@@ -59,7 +59,7 @@ jobs:
       - name: Build Qt Tests
         working-directory: .
         run: |
-          qmake TicTacToe1.pro "CONFIG+=test"
+          qmake TicTacToe1.pro CONFIG+=test
           make -j$(nproc)
 
       # Step 8: Run Qt Tests
@@ -80,4 +80,3 @@ jobs:
         with:
           name: TicTacToe-Linux-Build
           path: tic-tac-toe.tar.gz
-```
