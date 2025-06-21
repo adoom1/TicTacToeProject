@@ -49,7 +49,6 @@ LIBS += -lsqlite3 -lcrypto
 
 # Windows-only libraries and paths
 win32 {
-    INCLUDEPATH += D:/sqlite
     INCLUDEPATH += C:/msys64/mingw64/include
     LIBS += -L"C:/msys64/mingw64/lib"
     LIBS += -lgdi32 -lws2_32 -lcrypt32 -lmsvcrt
@@ -58,3 +57,8 @@ win32 {
 # Windows application icon
 RC_FILE = appicon.rc
 DISTFILES += appicon.rc
+
+# Optional installation directory
+qnx: target.path = /tmp/$${TARGET}/bin
+else: unix:!android: target.path = /opt/$${TARGET}/bin
+!isEmpty(target.path): INSTALLS += target
