@@ -1,57 +1,58 @@
-QT += core gui
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+# .github/workflows/main.yml
+name: Tic Tac Toe CI/CD
 
-CONFIG += c++11
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
 
-DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000
+jobs:
+  build:
+    runs-on: ubuntu-latest
 
-QMAKE_CXXFLAGS += -Wno-unused -Wno-unused-but-set-variable -Wno-unused-parameter
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
-SOURCES += \
-    BoardStateDelegate.cpp \
-    DBManager.cpp \
-    Game.cpp \
-    GameHistoryModel.cpp \
-    User.cpp \
-    difficultyselector.cpp \
-    main.cpp \
-    mainwindow.cpp \
-    playerchoicedialog.cpp
+      - name: "Debug: List workspace contents"
+        run: ls -R $GITHUB_WORKSPACE
 
-HEADERS += \
-    BoardStateDelegate.h \
-    DBManager.h \
-    Game.h \
-    GameHistoryModel.h \
-    User.h \
-    difficultyselector.h \
-    mainwindow.h \
-    playerchoicedialog.h
+      - name: Setup Qt
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: 6.6.3
+          aqtversion: ">=3.1,<3.2"
+          host: linux
+          target: desktop
+          arch: gcc_64
 
-FORMS += \
-    mainwindow.ui \
-    difficultyselector.ui \
-    playerchoicedialog.ui
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential libsqlite3-dev libssl-dev
 
-# Link against system SQLite and OpenSSL libraries (cross-platform)
-LIBS += -lsqlite3 -lcrypto
+      - name: Run qmake
+        run: qmake TicTacToe1.pro
 
-# Optional: Add extra system include paths (for external headers, if any)
-# INCLUDEPATH += some/extra/include/path
+      - name: Build project
+        run: make -j$(nproc)
 
-# Platform-specific additions (for Windows builds only)
-win32 {
-    # Windows-specific includes/libs if needed
-    INCLUDEPATH += C:/msys64/mingw64/include
-    LIBS += -L"C:/msys64/mingw64/lib"
-    LIBS += -lgdi32 -lws2_32 -lcrypt32 -lmsvcrt
-}
+      - name: Build Qt Tests
+        run: |
+          qmake TicTacToe1.pro CONFIG+=test
+          make -j$(nproc)
 
-# Windows application icon
-RC_FILE = appicon.rc
-DISTFILES += appicon.rc
+      - name: Package executable
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: tar -czvf tic-tac-toe.tar.gz TicTacToe1
 
-# Install location
-qnx: target.path = /tmp/$${TARGET}/bin
-else: unix:!android: target.path = /opt/$${TARGET}/bin
-!isEmpty(target.path): INSTALLS += target
+      - name: Upload artifacts
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v4
+        with:
+          name: TicTacToe-Linux-Build
+          path: tic-tac-toe.tar.gz
