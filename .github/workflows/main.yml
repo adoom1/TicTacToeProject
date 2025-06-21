@@ -26,7 +26,7 @@ jobs:
           submodules: recursive
 
       # Step 2: Debug workspace contents
-      - name: Debug: List workspace contents
+      - name: "Debug: List workspace contents"
         run: ls -R $GITHUB_WORKSPACE
 
       # Step 3: Set up Qt 6.6.3
