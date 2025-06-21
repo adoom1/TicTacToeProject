@@ -1,94 +1,57 @@
 # .github/workflows/main.yml
-# This workflow defines your Continuous Integration pipeline for the Tic Tac Toe game.
-
+# This workflow automates building, testing, and deploying the Tic Tac Toe game for branch merges.
 name: Tic Tac Toe CI/CD
 
-# Controls when the workflow will run
 on:
-  # Trigger the workflow on push or pull request events to the 'main' branch
   push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
-
-  # Allows you to run this workflow manually from the Actions tab in GitHub
   workflow_dispatch:
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
   build:
-    # The type of runner that the job will run on.
-    # We choose 'ubuntu-latest' because it's a common and well-supported environment
-    # for C++ and Qt development.
     runs-on: ubuntu-latest
 
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Step 1: Checks-out your repository under $GITHUB_WORKSPACE, so your workflow can access it.
-      # This is essential for any workflow that needs to compile or test your code.
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          # Ensure submodules are also checked out if your project uses them
-          submodules: 'recursive'
-
+          submodules: recursive
 
       - name: "Debug: List workspace contents"
         run: ls -R $GITHUB_WORKSPACE
 
-
-      # Step 2: Set up the Qt environment.
-      # This action automatically installs a specified version of Qt.
-      # We'll use Qt 6.6.3, which is a stable and commonly available version.
       - name: Setup Qt
         uses: jurplel/install-qt-action@v3
         with:
-          version: '6.6.3' # IMPORTANT: Ensure this is '6.6.3'
-          aqtversion: '==3.1.*'
-          host: 'linux'
-          target: 'desktop'
-          arch: 'gcc_64' # Assuming you're building for a 64-bit GCC environment
+          version: 6.6.3
+          aqtversion: ">=3.1,<3.2" 
+          host: linux
+          target: desktop
+          arch: gcc_64
 
-      # Step 3: Install build dependencies.
-      # Essential tools like build-essential (g++, make) and libsqlite3-dev for SQLite.
-      # OpenSSL development libraries for user hashing.
       - name: Install build dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential libsqlite3-dev libssl-dev
 
-      # Step 4: Configure the Qt project using qmake.
-      # qmake generates the Makefile for your project.
-      # The 'working-directory' is relative to the root of the repository after checkout.
       - name: Run qmake
-        working-directory: .    # Check this path based on the 'ls -R' output
-        run: qmake TicTacToe1.pro # Use the correct project file name
+        working-directory: .
+        run: qmake TicTacToe1.pro
 
-      # Step 5: Build the project using make.
-      # 'make' compiles your source code into executables.
-      # The '-j$(nproc)' flag uses all available processor cores for faster compilation.
-      # We keep the same working directory for the build.
       - name: Build project
-        working-directory: .     # Keep the same working directory
+        working-directory: .
         run: make -j$(nproc)
 
-      # Step 6: (Optional, but highly recommended for CI) Run Tests.
-      # If your tests executable is named 'TicTacToeTests', this step would run it.
-      # For now, we'll comment this out as your team is handling testing.
-      # When they create the test executable, you can uncomment this.
-      # - name: Run tests
-      #   working-directory: adoom1/tictactoeproject/TicTacToeProject-ee5ec987881872db791c6480046e52299aeb907f/release # Assuming tests are built into release
-      #   run: ./TicTacToeTests # Adjust path if your test executable is in a subdirectory
+      - name: Package executable
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        working-directory: .
+        run: tar -czvf tic-tac-toe.tar.gz TicTacToe1
 
-      # Step 7: Upload build artifacts.
-      # This step archives the compiled executable and any other necessary files
-      # so you can download them from the GitHub Actions run summary.
-      # This is a basic form of Continuous Delivery - making the build ready for download.
       - name: Upload artifacts
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: actions/upload-artifact@v4
         with:
           name: TicTacToe-Linux-Build
-          # The path is now relative to the root of the GITHUB_WORKSPACE (where 'actions/checkout' puts the repo)
-          path: TicTacToeProject/release/TicTacToe1 # Adjust for correct project name and build location
+          path: tic-tac-toe.tar.gz
