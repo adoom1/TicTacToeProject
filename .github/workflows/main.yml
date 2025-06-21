@@ -52,7 +52,7 @@ jobs:
 
       - name: Run tests
         working-directory: ./tests
-        run: ./main_test
+        run: ./test_game
 
       - name: Package executable
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
