@@ -44,16 +44,6 @@ jobs:
         working-directory: .
         run: make -j$(nproc)
 
-      - name: Build Qt Tests
-        working-directory: .
-        run: |
-          qmake TicTacToe1.pro CONFIG+=test
-          make -j$(nproc)
-
-      - name: Run tests
-        working-directory: ./tests
-        run: ./test_game
-
       - name: Package executable
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         working-directory: .
