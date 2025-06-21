@@ -19,30 +19,30 @@ int main(int argc, char *argv[])
         status |= QTest::qExec(&performanceTest, argc, argv);
     }
     //Run game test
-      //{
-    //TestGame gameTest;
-    //status |= QTest::qExec(&gameTest, argc, argv);
-    //}
+      {
+    TestGame gameTest;
+    status |= QTest::qExec(&gameTest, argc, argv);
+    }
     // Run User tests
 
 
-    //{
-       // TestUser userTest;
-        //status |= QTest::qExec(&userTest, argc, argv);
-    //}
+    {
+        TestUser userTest;
+        status |= QTest::qExec(&userTest, argc, argv);
+    }
 
 
-    // Run DBManager tests
-    //{
-        //TestDBManager dbTest;
-       // status |= QTest::qExec(&dbTest, argc, argv);
-    //}
+     //Run DBManager tests
+    {
+        TestDBManager dbTest;
+        status |= QTest::qExec(&dbTest, argc, argv);
+    }
 
     // Run GameHistoryModel tests
-    //{
-       // TestGameHistoryModel modelTest;
-        //status |= QTest::qExec(&modelTest, argc, argv);
-    //}
+    {
+       TestGameHistoryModel modelTest;
+        status |= QTest::qExec(&modelTest, argc, argv);
+    }
 
 
     return status;

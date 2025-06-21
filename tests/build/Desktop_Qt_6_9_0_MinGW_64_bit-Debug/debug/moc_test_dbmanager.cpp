@@ -7,7 +7,6 @@
 *****************************************************************************/
 
 #include "../../../test_dbmanager.h"
-#include <QtNetwork/QSslError>
 #include <QtCore/qmetatype.h>
 
 #include <QtCore/qtmochelpers.h>

@@ -1,22 +1,17 @@
-QT += core gui widgets testlib \
-    quick
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
-
+QT += core gui widgets testlib
 CONFIG += c++11 console
 CONFIG -= app_bundle
 
+# This is crucial for standalone executable
 TARGET = AdvancedTicTacToeTests
 TEMPLATE = app
 
-DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000
-QMAKE_CXXFLAGS += -Wno-unused -Wno-unused-but-set-variable -Wno-unused-parameter
-
-# Include paths for your main project source files
+# Include paths
 INCLUDEPATH += ../
 INCLUDEPATH += D:/sqlite
 INCLUDEPATH += "C:/msys64/mingw64/include"
-INCLUDEPATH += $$PWD/..
-# Source files from your main project
+
+# Source files from main project
 SOURCES += \
     ../BoardStateDelegate.cpp \
     ../DBManager.cpp \
@@ -27,14 +22,14 @@ SOURCES += \
     ../mainwindow.cpp \
     ../playerchoicedialog.cpp \
     D:/sqlite/sqlite3.c \
-    main_test.cpp \
-    test_dbmanager.cpp \
     test_game.cpp \
+    test_user.cpp \
+    test_dbmanager.cpp \
     test_gamehistory.cpp \
     test_performance.cpp \
-    test_user.cpp
+    main_test.cpp
 
-# Header files from your main project
+# Header files
 HEADERS += \
     ../BoardStateDelegate.h \
     ../DBManager.h \
@@ -44,16 +39,13 @@ HEADERS += \
     ../difficultyselector.h \
     ../mainwindow.h \
     ../playerchoicedialog.h \
-    ../test_user.h \
-    ../test_dbmanager.h \
-    ../test_gamehistorymodel.h \
-    test_dbmanager.h \
     test_game.h \
+    test_user.h \
+    test_dbmanager.h \
     test_gamehistory.h \
-    test_performance.h \
-    test_user.h
+    test_performance.h
 
-# UI files from your main project
+# UI files
 FORMS += \
     ../mainwindow.ui \
     ../difficultyselector.ui \
@@ -61,4 +53,3 @@ FORMS += \
 
 # Libraries
 LIBS += -L"C:/msys64/mingw64/lib" -lssl -lcrypto -lws2_32 -lgdi32 -lcrypt32
-LIBS += -ladvapi32

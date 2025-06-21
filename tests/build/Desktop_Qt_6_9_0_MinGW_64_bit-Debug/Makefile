@@ -309,15 +309,8 @@ Makefile: ../../tests.pro D:/Qt/6.9.0/mingw_64/mkspecs/win32-g++/qmake.conf D:/Q
 		D:/Qt/6.9.0/mingw_64/mkspecs/features/lex.prf \
 		../../tests.pro \
 		D:/Qt/6.9.0/mingw_64/lib/Qt6Widgets.prl \
-		D:/Qt/6.9.0/mingw_64/lib/Qt6Quick.prl \
-		D:/Qt/6.9.0/mingw_64/lib/Qt6OpenGL.prl \
 		D:/Qt/6.9.0/mingw_64/lib/Qt6Gui.prl \
 		D:/Qt/6.9.0/mingw_64/lib/Qt6Test.prl \
-		D:/Qt/6.9.0/mingw_64/lib/Qt6QmlMeta.prl \
-		D:/Qt/6.9.0/mingw_64/lib/Qt6QmlModels.prl \
-		D:/Qt/6.9.0/mingw_64/lib/Qt6QmlWorkerScript.prl \
-		D:/Qt/6.9.0/mingw_64/lib/Qt6Qml.prl \
-		D:/Qt/6.9.0/mingw_64/lib/Qt6Network.prl \
 		D:/Qt/6.9.0/mingw_64/lib/Qt6Core.prl \
 		D:/Qt/6.9.0/mingw_64/mkspecs/features/build_pass.prf
 	$(QMAKE) -o Makefile ..\..\tests.pro -spec win32-g++ "CONFIG+=debug" "CONFIG+=qml_debug"
@@ -560,15 +553,8 @@ D:/Qt/6.9.0/mingw_64/mkspecs/features/yacc.prf:
 D:/Qt/6.9.0/mingw_64/mkspecs/features/lex.prf:
 ../../tests.pro:
 D:/Qt/6.9.0/mingw_64/lib/Qt6Widgets.prl:
-D:/Qt/6.9.0/mingw_64/lib/Qt6Quick.prl:
-D:/Qt/6.9.0/mingw_64/lib/Qt6OpenGL.prl:
 D:/Qt/6.9.0/mingw_64/lib/Qt6Gui.prl:
 D:/Qt/6.9.0/mingw_64/lib/Qt6Test.prl:
-D:/Qt/6.9.0/mingw_64/lib/Qt6QmlMeta.prl:
-D:/Qt/6.9.0/mingw_64/lib/Qt6QmlModels.prl:
-D:/Qt/6.9.0/mingw_64/lib/Qt6QmlWorkerScript.prl:
-D:/Qt/6.9.0/mingw_64/lib/Qt6Qml.prl:
-D:/Qt/6.9.0/mingw_64/lib/Qt6Network.prl:
 D:/Qt/6.9.0/mingw_64/lib/Qt6Core.prl:
 D:/Qt/6.9.0/mingw_64/mkspecs/features/build_pass.prf:
 qmake: FORCE
